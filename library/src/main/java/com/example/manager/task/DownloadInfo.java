@@ -1,46 +1,41 @@
 package com.example.manager.task;
 
+import androidx.annotation.IntRange;
+
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * Created by tanghao on 2021/5/26
  */
 public class DownloadInfo {
 
-    public static final long TOTAL_ERROR = -1;//获取进度失败
-    private String url;
-    private long total;
-    private long progress;
-    private String fileName;
+    @IntRange(from = 0)
+    private final long startOffset;
+    @IntRange(from = 0)
+    private final long contentLength;
 
-    public DownloadInfo(String url) {
-        this.url = url;
+    private final AtomicLong currentOffset;
+
+    public DownloadInfo(long startOffset, long contentLength) {
+        this(startOffset, contentLength, 0);
     }
 
-    public String getUrl() {
-        return url;
+    public DownloadInfo(long startOffset, long contentLength, long currentOffset) {
+        this.startOffset = startOffset;
+        this.contentLength = contentLength;
+        this.currentOffset = new AtomicLong(currentOffset);
     }
 
-    public String getFileName() {
-        return fileName;
+    public long getStartOffset() {
+        return startOffset;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public long getContentLength() {
+        return contentLength;
     }
 
-    public long getTotal() {
-        return total;
-    }
-
-    public void setTotal(long total) {
-        this.total = total;
-    }
-
-    public long getProgress() {
-        return progress;
-    }
-
-    public void setProgress(long progress) {
-        this.progress = progress;
+    public AtomicLong getCurrentOffset() {
+        return currentOffset;
     }
 
 }

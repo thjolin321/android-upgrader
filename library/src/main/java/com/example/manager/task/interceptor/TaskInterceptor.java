@@ -7,8 +7,12 @@ import com.example.manager.task.DownloadTask;
  */
 public interface TaskInterceptor {
 
-    void init();
-
     DownloadTask operate(DownloadTask task);
+
+    TaskInterceptor next();
+
+    void setNext(TaskInterceptor taskInterceptor);
+
+    void add(TaskInterceptor taskInterceptor);
 
 }

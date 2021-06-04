@@ -31,11 +31,11 @@ public class HttpUtil {
         return SingletonHolder.INSTANCE;
     }
 
-    public Call asyncCall(String url) {
+    public Response asyncCall(String url) throws IOException {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        return getOkHttpClient().newCall(request);
+        return getOkHttpClient().newCall(request).execute();
     }
 
     public Response syncResponse(String url, long start, long end) throws IOException {

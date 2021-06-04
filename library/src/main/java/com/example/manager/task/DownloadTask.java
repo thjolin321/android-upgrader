@@ -3,8 +3,10 @@ package com.example.manager.task;
 import android.text.TextUtils;
 
 import com.example.manager.constant.Status;
+import com.example.manager.listener.DownloadListener;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by tanghao on 2021/5/27
@@ -12,42 +14,58 @@ import java.util.List;
 public class DownloadTask {
 
     String url;
+    String newFileMd5;
     String fileParent;
     String fileName;
     boolean needProgress;
     boolean needSpeed;
     boolean forceRepeat;
-    int coreSize;
-
+    int blockSize;
     long totalSize;
-
+    long cacheSize;
     Status status;
+
+    // 一个task对应一个进度控制器
+    private ProgressController progressController;
+
+    private DownloadListener downloadListener;
 
     private List<DownloadInfo> infoList;
 
     private List<DownloadCall> callList;
 
-    public DownloadTask(String url, String fileParent, String fileName, boolean needProgress, boolean needSpeed, boolean forceRepeat, int coreSize) {
+    public DownloadTask(String url, String fileParent, String fileName, boolean needProgress, boolean needSpeed, boolean forceRepeat, int blockSize) {
         this.url = url;
         this.fileParent = fileParent;
         this.fileName = fileName;
         this.needProgress = needProgress;
         this.needSpeed = needSpeed;
         this.forceRepeat = forceRepeat;
-        this.coreSize = coreSize;
+        this.blockSize = blockSize;
         init();
     }
 
     private void init() {
         status = new Status();
-        if (TextUtils.isEmpty(url)) {
-            status.msg = "CHECK_URL";
-            status.status = -1;
-        }
     }
 
 
-    public static class Builder {
+    private final class ProgressController {
+
+        final AtomicLong sofarBytes;
+
+        public ProgressController() {
+            this.sofarBytes = new AtomicLong(0);
+        }
+
+        public void progress(long progress) {
+            long sofar = sofarBytes.addAndGet(progress);
+            downloadListener.progress((int) (sofar / totalSize * 100));
+        }
+
+    }
+
+    public static class Builder implements IDownloadConfiger {
 
         String url;
         String fileParent;
@@ -55,9 +73,9 @@ public class DownloadTask {
         boolean needProgress;
         boolean needSpeed;
         boolean forceRepeat;
-        int coreSize;
+        int blockSize;
 
-        public Builder setUrl(String url) {
+        public Builder url(String url) {
             this.url = url;
             return this;
         }
@@ -87,15 +105,33 @@ public class DownloadTask {
             return this;
         }
 
-        public Builder coreSize(int coreSize) {
-            this.coreSize = coreSize;
+        public Builder blockSize(int blockSize) {
+            this.blockSize = blockSize;
             return this;
         }
 
         public DownloadTask build() {
             return new DownloadTask(url, fileParent, fileName,
-                    needProgress, needSpeed, forceRepeat, coreSize);
+                    needProgress, needSpeed, forceRepeat, blockSize);
         }
+    }
+
+    public interface IDownloadConfiger {
+
+        IDownloadConfiger url(String url);
+
+        IDownloadConfiger fileParent(String fileParent);
+
+        IDownloadConfiger fileName(String fileName);
+
+        IDownloadConfiger needProgress(boolean needProgress);
+
+        IDownloadConfiger needSpeed(boolean needSpeed);
+
+        IDownloadConfiger forceRepeat(boolean forceRepeat);
+
+        IDownloadConfiger blockSize(int blockSize);
+
     }
 
     public String getUrl() {
@@ -138,7 +174,7 @@ public class DownloadTask {
         this.needSpeed = needSpeed;
     }
 
-    public boolean isForceRepeat() {
+    public boolean forceRepeat() {
         return forceRepeat;
     }
 
@@ -146,12 +182,12 @@ public class DownloadTask {
         this.forceRepeat = forceRepeat;
     }
 
-    public int getCoreSize() {
-        return coreSize;
+    public int getBlockSize() {
+        return blockSize;
     }
 
-    public void setCoreSize(int coreSize) {
-        this.coreSize = coreSize;
+    public void setBlockSize(int blockSize) {
+        this.blockSize = blockSize;
     }
 
     public long getTotalSize() {
@@ -166,8 +202,10 @@ public class DownloadTask {
         return status;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setStatus(int statusCode) {
+        if (status != null) {
+            this.status.setStatus(statusCode);
+        }
     }
 
     public List<DownloadInfo> getInfoList() {
@@ -184,5 +222,36 @@ public class DownloadTask {
 
     public void setCallList(List<DownloadCall> callList) {
         this.callList = callList;
+    }
+
+    public String getNewFileMd5() {
+        return newFileMd5;
+    }
+
+    public long getCacheSize() {
+        return cacheSize;
+    }
+
+    public void setCacheSize(long cacheSize) {
+        this.cacheSize = cacheSize;
+    }
+
+    public void dealProgress(long progress) {
+        if (progressController == null) {
+            return;
+        }
+        progressController.progress(progress);
+    }
+
+    public void createProgressController() {
+        this.progressController = new ProgressController();
+    }
+
+    public DownloadListener getDownloadListener() {
+        return downloadListener;
+    }
+
+    public void setDownloadListener(DownloadListener downloadListener) {
+        this.downloadListener = downloadListener;
     }
 }

@@ -2,4 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.library">
 
+    <application>
+        <provider
+            android:name="com.example.manager.database.DownloadProvider"
+            android:authorities="${applicationId}.com.example.manager"
+            android:exported="false"/>
+    </application>
+
 </manifest>

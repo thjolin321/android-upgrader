@@ -3,8 +3,12 @@ package com.example.manager.task;
 import android.text.TextUtils;
 
 import com.example.manager.constant.Status;
+import com.example.manager.database.download.DownloadDaoFatory;
+import com.example.manager.dispatcher.TaskDispatcher;
 import com.example.manager.listener.DownloadListener;
+import com.example.manager.util.FileUtils;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -24,17 +28,20 @@ public class DownloadTask {
     long totalSize;
     long cacheSize;
     Status status;
+    InputStream body;
 
     // 一个task对应一个进度控制器
-    private ProgressController progressController;
+    ProgressController progressController;
 
-    private DownloadListener downloadListener;
+    DownloadListener downloadListener;
 
-    private List<DownloadInfo> infoList;
+    TaskCall taskCall;
 
-    private List<DownloadCall> callList;
+    List<DownloadInfo> infoList;
 
-    public DownloadTask(String url, String fileParent, String fileName, boolean needProgress, boolean needSpeed, boolean forceRepeat, int blockSize) {
+    List<DownloadCall> callList;
+
+    private DownloadTask(String url, String fileParent, String fileName, boolean needProgress, boolean needSpeed, boolean forceRepeat, int blockSize) {
         this.url = url;
         this.fileParent = fileParent;
         this.fileName = fileName;
@@ -53,19 +60,26 @@ public class DownloadTask {
     private final class ProgressController {
 
         final AtomicLong sofarBytes;
+        volatile long tempProgress;
+
 
         public ProgressController() {
-            this.sofarBytes = new AtomicLong(0);
+            this.sofarBytes = new AtomicLong(cacheSize);
         }
 
         public void progress(long progress) {
             long sofar = sofarBytes.addAndGet(progress);
-            downloadListener.progress((int) (sofar / totalSize * 100));
+            int finalProgress = (int) (sofar / (float) totalSize * 100);
+            if (finalProgress <= tempProgress) {
+                return;
+            }
+            tempProgress = finalProgress;
+            downloadListener.progress(finalProgress);
         }
 
     }
 
-    public static class Builder implements IDownloadConfiger {
+    public static class Builder {
 
         String url;
         String fileParent;
@@ -106,6 +120,7 @@ public class DownloadTask {
         }
 
         public Builder blockSize(int blockSize) {
+            if (blockSize > 5) blockSize = 5;
             this.blockSize = blockSize;
             return this;
         }
@@ -114,24 +129,6 @@ public class DownloadTask {
             return new DownloadTask(url, fileParent, fileName,
                     needProgress, needSpeed, forceRepeat, blockSize);
         }
-    }
-
-    public interface IDownloadConfiger {
-
-        IDownloadConfiger url(String url);
-
-        IDownloadConfiger fileParent(String fileParent);
-
-        IDownloadConfiger fileName(String fileName);
-
-        IDownloadConfiger needProgress(boolean needProgress);
-
-        IDownloadConfiger needSpeed(boolean needSpeed);
-
-        IDownloadConfiger forceRepeat(boolean forceRepeat);
-
-        IDownloadConfiger blockSize(int blockSize);
-
     }
 
     public String getUrl() {
@@ -253,5 +250,81 @@ public class DownloadTask {
 
     public void setDownloadListener(DownloadListener downloadListener) {
         this.downloadListener = downloadListener;
+    }
+
+    public InputStream getBody() {
+        return body;
+    }
+
+    public void setBody(InputStream body) {
+        this.body = body;
+    }
+
+    public void setTaskCall(TaskCall taskCall) {
+        this.taskCall = taskCall;
+    }
+
+    public synchronized void cancel() {
+        cancel(Status.CANEL);
+    }
+
+    public synchronized void cancel(String msg) {
+        if (status.getCode() == Status.ERRO) {
+            return;
+        }
+        if (taskCall != null) {
+            taskCall.cancel();
+        }
+        if (callList != null) {
+            for (DownloadCall call : callList) {
+                call.cancel();
+            }
+        }
+        TaskDispatcher.getInstance().removeTask(url);
+        downloadListener.failed(msg);
+        setStatus(Status.ERRO);
+    }
+
+
+    public synchronized void dealFinishDownloadCall(int index) {
+        if (callList == null || callList.isEmpty()) return;
+        for (int i = 0; i < callList.size(); i++) {
+            if (callList.get(i).index == index) {
+                callList.remove(i);
+                break;
+            }
+        }
+        if (callList.isEmpty()) {
+            downloadListener.progress(100);
+            if (!TextUtils.isEmpty(newFileMd5) && !newFileMd5
+                    .equals(FileUtils.fileMd5(FileUtils.getTargetFilePath(fileParent, fileName)))) {
+                // md5与预定值不一样
+                downloadListener.failed(Status.MD5_UNMATCH);
+                return;
+            }
+            downloadListener.success(FileUtils.getTargetFilePath(fileParent, fileName));
+            DownloadDaoFatory.getDao().deleteByUrl(url);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "DownloadTask{" +
+                "url='" + url + '\'' +
+                ", newFileMd5='" + newFileMd5 + '\'' +
+                ", fileParent='" + fileParent + '\'' +
+                ", fileName='" + fileName + '\'' +
+                ", needProgress=" + needProgress +
+                ", needSpeed=" + needSpeed +
+                ", forceRepeat=" + forceRepeat +
+                ", blockSize=" + blockSize +
+                ", totalSize=" + totalSize +
+                ", cacheSize=" + cacheSize +
+                ", status=" + status +
+                ", progressController=" + progressController +
+                ", downloadListener=" + downloadListener +
+                ", infoList=" + infoList +
+                ", callList=" + callList +
+                '}';
     }
 }

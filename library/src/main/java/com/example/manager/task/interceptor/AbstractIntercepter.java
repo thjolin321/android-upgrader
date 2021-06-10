@@ -28,12 +28,13 @@ public abstract class AbstractIntercepter implements TaskInterceptor {
     public void add(TaskInterceptor task) {
         if (taskInterceptor == null) {
             this.taskInterceptor = task;
+            return;
         }
-//        else {
-//            taskInterceptor.setNext();
-//            last.setNext(task);
-//        }
-//        last = task;
-
+        if (last == null) {
+            last = taskInterceptor;
+            taskInterceptor.setNext(task);
+        }
+        last.setNext(task);
+        last = task;
     }
 }

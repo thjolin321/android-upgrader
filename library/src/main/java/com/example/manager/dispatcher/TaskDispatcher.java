@@ -6,6 +6,7 @@ import com.example.manager.constant.Lifecycle;
 import com.example.manager.constant.Status;
 import com.example.manager.listener.DownloadListener;
 import com.example.manager.task.DownloadTask;
+import com.example.manager.task.TaskCall;
 import com.example.manager.task.interceptor.ConnectIntercepter;
 import com.example.manager.task.interceptor.DatabaseInterceptor;
 import com.example.manager.task.interceptor.DownloadInterceptor;
@@ -13,7 +14,10 @@ import com.example.manager.task.interceptor.FileInterceptor;
 import com.example.manager.task.interceptor.StrategyInterceptor;
 import com.example.manager.task.interceptor.TaskInterceptor;
 import com.example.manager.util.FileUtils;
+import com.example.manager.util.Logl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -27,17 +31,12 @@ import okhttp3.internal.concurrent.Task;
 public class TaskDispatcher implements Lifecycle {
 
     private static volatile TaskDispatcher sDownloadDispatcher;
-    private TaskInterceptor taskInterceptor;
-    private DownloadTask task;
-    private DownloadListener downloadListener;
-
-    //线程池
+    private List<DownloadTask> taskList;
     private ExecutorService mExecutorService;
 
     private TaskDispatcher() {
         init();
     }
-
 
     @Override
     public void init() {
@@ -47,64 +46,40 @@ public class TaskDispatcher implements Lifecycle {
             thread.setDaemon(false);
             return thread;
         });
-
+        taskList = new ArrayList<>();
     }
 
     @Override
-    public void prepare() {
+    public boolean prepare(DownloadTask task) {
         if (task == null) {
-            return;
+            return false;
         }
         if (TextUtils.isEmpty(task.getUrl())) {
-            if (downloadListener != null) {
-                downloadListener.failed(Status.CHECK_URL);
-            }
-            return;
+            task.cancel(Status.CHECK_URL);
+            return false;
         }
-        taskInterceptor = new FileInterceptor();
-        taskInterceptor.add(new ConnectIntercepter());
-        taskInterceptor.next().add(new StrategyInterceptor());
-        taskInterceptor.next().next().add(new DatabaseInterceptor());
-        taskInterceptor.next().next().next().add(new DownloadInterceptor());
-
+        if(taskExist(task.getUrl())){
+            return false;
+        }
+        taskList.add(task);
+        return true;
     }
 
     @Override
     public void start(DownloadTask task, DownloadListener downloadListener) {
-        this.task = task;
-        this.downloadListener = downloadListener;
         task.setDownloadListener(downloadListener);
-        prepare();
-        while (taskInterceptor != null) {
-            taskInterceptor.operate(task);
-            taskInterceptor = taskInterceptor.next();
-            if (checkStatus()) {
-                return;
-            }
+        if (!prepare(task)) {
+            return;
         }
+        mExecutorService.submit(new TaskCall(task));
     }
 
     @Override
     public void destroy() {
-
-    }
-
-    private boolean checkStatus() {
-        if (task.getStatus().getCode() == -1) {
-            if (downloadListener != null) {
-                downloadListener.failed(task.getStatus().getMsg());
-            }
-            return true;
+        for (DownloadTask task : taskList) {
+            task.cancel();
         }
-        if (task.getStatus().getCode() == 200) {
-            if (downloadListener != null) {
-                downloadListener.success(FileUtils.getTargetFilePath(task.getFileParent(), task.getFileName()));
-            }
-            return true;
-        }
-        return false;
     }
-
 
     public ExecutorService getmExecutorService() {
         return mExecutorService;
@@ -121,8 +96,24 @@ public class TaskDispatcher implements Lifecycle {
         return sDownloadDispatcher;
     }
 
-    private synchronized ExecutorService executorService() {
-        return mExecutorService;
+    public void removeTask(String url) {
+        if (taskList == null) return;
+        for (int i = 0; i < taskList.size(); i++) {
+            if(taskList.get(i).getUrl().equals(url)){
+                taskList.remove(i);
+                break;
+            }
+        }
+    }
+
+    public boolean taskExist(String url) {
+        if (taskList == null) return false;
+        for (int i = 0; i < taskList.size(); i++) {
+            if(taskList.get(i).getUrl().equals(url)){
+                return true;
+            }
+        }
+        return false;
     }
 
 

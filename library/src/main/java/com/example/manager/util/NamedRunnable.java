@@ -16,9 +16,16 @@
 
 package com.example.manager.util;
 
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public abstract class NamedRunnable implements Runnable {
 
     protected final String name;
+
+    protected Thread mCurrentThread;
+
+    final AtomicBoolean finished = new AtomicBoolean(false);
 
     public NamedRunnable(String name) {
         this.name = name;
@@ -26,16 +33,37 @@ public abstract class NamedRunnable implements Runnable {
 
     @Override
     public final void run() {
-        String oldName = Thread.currentThread().getName();
+        mCurrentThread = Thread.currentThread();
         Thread.currentThread().setName(name);
+        if (isFinished()) {
+            return;
+        }
         try {
             execute();
+            finished.getAndSet(true);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             interrupted(e);
-        } finally {
-            Thread.currentThread().setName(oldName);
-            finished();
+        }
+    }
+
+    public Thread getmCurrentThread() {
+        return mCurrentThread;
+    }
+
+    public boolean isFinished() {
+        return finished.get();
+    }
+
+    public boolean setFinished(boolean finish) {
+        return finished.getAndSet(finish);
+    }
+
+    public void cancel() {
+        if (getmCurrentThread() != null) {
+            getmCurrentThread().interrupt();
+        } else {
+            setFinished(true);
         }
     }
 
@@ -43,5 +71,4 @@ public abstract class NamedRunnable implements Runnable {
 
     protected abstract void interrupted(InterruptedException e);
 
-    protected abstract void finished();
 }

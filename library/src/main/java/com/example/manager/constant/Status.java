@@ -6,8 +6,12 @@ package com.example.manager.constant;
 public class Status {
 
     public static final int ERRO = -1;
+    public static final int PAUSE = 100;
     public static final int DOWN = 200;
     public static String CHECK_URL = "请检查你的url";
+    public static String DOWUNLOAD_ERROR = "下载出错";
+    public static String CANEL = "用户取消下载";
+    public static String MD5_UNMATCH = "md5值不匹配";
 
     public static boolean DEBUG = true;
 

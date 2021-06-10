@@ -12,7 +12,7 @@ public interface Lifecycle {
 
     void init();
 
-    void prepare();
+    boolean prepare(DownloadTask task);
 
     void start(DownloadTask task, DownloadListener downloadListener);
 

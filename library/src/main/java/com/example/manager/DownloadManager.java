@@ -11,8 +11,6 @@ import com.example.manager.dispatcher.TaskDispatcher;
 import com.example.manager.http.HttpUtil;
 import com.example.manager.listener.DownloadListener;
 import com.example.manager.task.DownloadTask;
-import com.example.manager.task.wrapper.DownloadConfiger;
-
 import okhttp3.OkHttpClient;
 
 
@@ -59,12 +57,9 @@ public class DownloadManager {
         TaskDispatcher.getInstance().start(new DownloadTask.Builder().url(url).build(), downloadListener);
     }
 
-    public void start(DownloadConfiger configer, DownloadListener downloadListener) {
-        TaskDispatcher.getInstance().start(configer.createDownloadTask(), downloadListener);
+    public void start(DownloadTask task, DownloadListener downloadListener) {
+        TaskDispatcher.getInstance().start(task, downloadListener);
     }
 
-    public void sendMessage() {
-
-    }
 
 }

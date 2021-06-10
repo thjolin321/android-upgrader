@@ -1,5 +1,7 @@
 package com.example.manager.task.interceptor;
 
+import com.example.manager.database.DownloadEntity;
+import com.example.manager.database.download.DownloadDaoFatory;
 import com.example.manager.task.DownloadInfo;
 import com.example.manager.task.DownloadTask;
 
@@ -23,6 +25,9 @@ public class StrategyInterceptor extends AbstractIntercepter implements TaskInte
 
     @Override
     public DownloadTask operate(DownloadTask task) {
+        if (task.getInfoList() != null) {
+            return task;
+        }
         countCoreBlockSize(task);
         createDownTask(task);
         if (task.isNeedProgress() && task.getDownloadListener() != null) {
@@ -37,27 +42,24 @@ public class StrategyInterceptor extends AbstractIntercepter implements TaskInte
         }
         if (task.getTotalSize() < ONE_CORE_SIZE_LIMIT) {
             task.setBlockSize(1);
-
         } else if (task.getTotalSize() < TWO_CORE_SIZE_LIMIT) {
             task.setBlockSize(2);
-        }
-
-        if (task.getTotalSize() < THREE_CORE_SIZE_LIMIT) {
+        } else if (task.getTotalSize() < THREE_CORE_SIZE_LIMIT) {
             task.setBlockSize(3);
-        }
-
-        if (task.getTotalSize() < FOUR_CORE_SIZE_LIMIT) {
+        } else if (task.getTotalSize() < FOUR_CORE_SIZE_LIMIT) {
             task.setBlockSize(4);
+        } else {
+            task.setBlockSize(5);
         }
     }
 
     private void createDownTask(DownloadTask task) {
-
         final long eachLength = task.getTotalSize() / task.getBlockSize();
         long startOffset = 0;
         long contentLength = 0;
         List<DownloadInfo> list = new ArrayList<>();
         task.setInfoList(list);
+        List<DownloadEntity> listEntity = new ArrayList<>();
         for (int i = 0; i < task.getBlockSize(); i++) {
             startOffset = startOffset + contentLength;
             if (i == 0) {
@@ -68,7 +70,8 @@ public class StrategyInterceptor extends AbstractIntercepter implements TaskInte
                 contentLength = eachLength;
             }
             list.add(new DownloadInfo(startOffset, contentLength));
+            listEntity.add(new DownloadEntity(startOffset, task.getUrl(), i, 0, contentLength));
         }
+        DownloadDaoFatory.getDao().insert(listEntity);
     }
-
 }

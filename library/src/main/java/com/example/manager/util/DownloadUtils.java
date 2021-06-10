@@ -1,6 +1,7 @@
 package com.example.manager.util;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -17,4 +18,16 @@ public class DownloadUtils {
             e.printStackTrace();
         }
     }
+
+    public static String getFileNameFromUrl(String url) {
+        if (url == null) {
+            return null;
+        }
+        String[] names = url.split(File.separator);
+        if (names.length == 0) {
+            return null;
+        }
+        return names[names.length - 1];
+    }
+
 }

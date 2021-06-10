@@ -9,6 +9,6 @@ public interface DownloadListener {
 
     void progress(int progress);
 
-    void failed(String meg);
+    void failed(String msg);
 
 }

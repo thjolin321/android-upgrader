@@ -8,8 +8,6 @@ import androidx.annotation.NonNull;
 
 import com.example.manager.database.DownloadProvider;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -19,7 +17,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.logging.Logger;
+
 
 /**
  * Created by tanghao on 2021/5/31
@@ -30,18 +28,21 @@ public class FileUtils {
     private static String defaultSaveRootPath;
 
     public static String getDefaultSaveRootPath() {
-        File filesDir = DownloadProvider.context.getFilesDir();
-        File cacheDir = DownloadProvider.context.getCacheDir();
         if (!TextUtils.isEmpty(defaultSaveRootPath)) {
             return defaultSaveRootPath;
         }
-        if (DownloadProvider.context.getCacheDir() == null) {
+        if (DownloadProvider.context.getFilesDir() == null) {
             defaultSaveRootPath = Environment.getDownloadCacheDirectory().getAbsolutePath() + File.separator + "UUDownload";
         } else {
-            defaultSaveRootPath = DownloadProvider.context.getCacheDir().getAbsolutePath() + File.separator + "UUDownload";
+            defaultSaveRootPath = DownloadProvider.context.getFilesDir().getAbsolutePath() + File.separator + "UUDownload";
         }
-        if (!new File(defaultSaveRootPath).mkdir()) {
-            defaultSaveRootPath = DownloadProvider.context.getCacheDir().getAbsolutePath();
+        File file = new File(defaultSaveRootPath);
+        if (file.exists()) {
+            if (!file.isDirectory()) {
+                defaultSaveRootPath += "2";
+            }
+        } else {
+            file.mkdir();
         }
         Logl.e("defaultSaveRootPath: " + defaultSaveRootPath);
         return defaultSaveRootPath;
@@ -227,6 +228,23 @@ public class FileUtils {
             fw.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void deleteFile(File file) {
+        if (file == null || !file.exists()) {
+            return;
+        }
+        if (file.isFile()) {
+            file.delete();
+            return;
+        }
+        if (file.isDirectory()) {
+            for (File chileFile : file.listFiles()) {
+                deleteFile(chileFile);
+            }
+
+            file.delete();
         }
     }
 

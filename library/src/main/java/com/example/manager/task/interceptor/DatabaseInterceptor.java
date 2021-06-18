@@ -26,7 +26,7 @@ public class DatabaseInterceptor extends AbstractIntercepter implements TaskInte
         Logl.e("dbSize: " + dbSize);
         Logl.e("getCacheSize(): " + task.getCacheSize());
         if (task.getCacheSize() < dbSize) {
-            forceDelete(task);
+            task.forceDelete();
             return task;
         }
         // 判断文件长度是否变化，在此若长度没变视为同一个文件下载连接。
@@ -46,18 +46,10 @@ public class DatabaseInterceptor extends AbstractIntercepter implements TaskInte
         Logl.e("totalDbSize:" + totalDbSize);
         Logl.e("task.getTotalSize():" + task.getTotalSize());
         if (totalDbSize != task.getTotalSize()) {
-            forceDelete(task);
+            task.forceDelete();
             task.setInfoList(null);
         }
         return task;
-    }
-
-    private void forceDelete(DownloadTask task) {
-        task.setForceRepeat(true);
-        task.setCacheSize(0);
-        FileUtils.delete(FileUtils.getTargetFilePath(task.getFileParent(), task.getFileName()));
-        FileUtils.createNewFile(FileUtils.getTargetFilePath(task.getFileParent(), task.getFileName()));
-        DownloadDaoFatory.getDao().deleteByUrl(task.getUrl());
     }
 
 }

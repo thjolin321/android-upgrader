@@ -9,7 +9,18 @@ public class ApkPatchBean {
 
     private int versionCode;
     private String patchUrl;
-    private File patchPath;
+    private String patchMd5;
+
+    public ApkPatchBean(int versionCode, String patchUrl) {
+        this.versionCode = versionCode;
+        this.patchUrl = patchUrl;
+    }
+
+    public ApkPatchBean(int versionCode, String patchUrl, String patchMd5) {
+        this.versionCode = versionCode;
+        this.patchUrl = patchUrl;
+        this.patchMd5 = patchMd5;
+    }
 
     public int getVersionCode() {
         return versionCode;
@@ -27,11 +38,7 @@ public class ApkPatchBean {
         this.patchUrl = patchUrl;
     }
 
-    public File getPatchPath() {
-        return patchPath;
-    }
-
-    public void setPatchPath(File patchPath) {
-        this.patchPath = patchPath;
+    public String getPatchMd5() {
+        return patchMd5;
     }
 }

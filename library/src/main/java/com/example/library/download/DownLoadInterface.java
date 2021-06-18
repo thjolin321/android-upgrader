@@ -1,6 +1,6 @@
 package com.example.library.download;
 
-import com.example.library.operate.OperateSuccessListener;
+import com.example.library.operate.listener.OperateSuccessListener;
 
 /**
  * Created by tanghao on 2021/5/24

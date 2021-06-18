@@ -7,6 +7,7 @@ import android.os.Message;
 
 import androidx.annotation.NonNull;
 
+import com.example.compose.BsPatchUtils;
 import com.example.manager.dispatcher.TaskDispatcher;
 import com.example.manager.http.HttpUtil;
 import com.example.manager.listener.DownloadListener;
@@ -33,7 +34,7 @@ public class DownloadManager {
 
     public static DownloadManager with() {
         if (singleton == null) {
-            synchronized (DownloadTask.class) {
+            synchronized (DownloadManager.class) {
                 if (singleton == null) {
                     singleton = new DownloadManager();
                 }

@@ -94,7 +94,7 @@ public class DownloadCall extends NamedRunnable {
         entity.setThreadId(index);
         entity.setId(downloadInfo.getId());
         //保存到数据库
-        Logl.e(DownloadDaoFatory.getDao().insertOrUpdate(entity) + "");
+        Logl.e("插入数据库:" + DownloadDaoFatory.getDao().insertOrUpdate(entity) + "");
     }
 
     public void cancel() {
@@ -113,5 +113,15 @@ public class DownloadCall extends NamedRunnable {
     protected void finished() {
         task.dealFinishDownloadCall(index);
         Logl.e("DownloadCall: finished()");
+    }
+
+    @Override
+    public String toString() {
+        return "DownloadCall{" +
+                "retry=" + retry +
+                ", downloadInfo=" + downloadInfo +
+                ", task=" + task +
+                ", index=" + index +
+                '}';
     }
 }

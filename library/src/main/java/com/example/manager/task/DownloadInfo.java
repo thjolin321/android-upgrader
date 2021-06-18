@@ -19,7 +19,7 @@ public class DownloadInfo {
     private final AtomicLong progress;
 
     public DownloadInfo(long startOffset, long contentLength) {
-        this(startOffset, contentLength, 0);
+        this(0, startOffset, contentLength);
     }
 
     public DownloadInfo(long id, long startOffset, long contentLength) {
@@ -27,10 +27,10 @@ public class DownloadInfo {
     }
 
     public DownloadInfo(long id, long startOffset, long contentLength, long progress) {
-        this.startOffset = startOffset;
-        this.contentLength = contentLength;
-        this.progress = new AtomicLong(progress);
         this.id = id;
+        this.contentLength = contentLength;
+        this.startOffset = startOffset;
+        this.progress = new AtomicLong(progress);
     }
 
     public long getStartOffset() {
@@ -51,6 +51,10 @@ public class DownloadInfo {
 
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     @Override

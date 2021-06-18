@@ -1,6 +1,6 @@
 package com.example.library.download;
 
-import com.example.library.operate.OperateSuccessListener;
+import com.example.library.operate.listener.OperateSuccessListener;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;

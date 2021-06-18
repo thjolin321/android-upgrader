@@ -37,7 +37,7 @@ public class StrategyInterceptor extends AbstractIntercepter implements TaskInte
     }
 
     private void countCoreBlockSize(DownloadTask task) {
-        if (task.getTotalSize() != 0) {
+        if (task.getBlockSize() != 0) {
             return;
         }
         if (task.getTotalSize() < ONE_CORE_SIZE_LIMIT) {
@@ -73,5 +73,8 @@ public class StrategyInterceptor extends AbstractIntercepter implements TaskInte
             listEntity.add(new DownloadEntity(startOffset, task.getUrl(), i, 0, contentLength));
         }
         DownloadDaoFatory.getDao().insert(listEntity);
+        for (int i = 0; i < list.size(); i++) {
+            list.get(i).setId(listEntity.get(i).getId());
+        }
     }
 }

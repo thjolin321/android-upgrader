@@ -34,10 +34,7 @@ public class FileInterceptor extends AbstractIntercepter implements TaskIntercep
             }
             task.setCacheSize(file.length());
             if (task.forceRepeat()) {
-                if (file.exists()) {
-                    file.delete();
-                    task.setCacheSize(0);
-                }
+                task.forceDelete();
             }
         }
         return task;

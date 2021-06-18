@@ -7,6 +7,7 @@ import com.example.manager.database.download.DownloadDaoFatory;
 import com.example.manager.dispatcher.TaskDispatcher;
 import com.example.manager.listener.DownloadListener;
 import com.example.manager.util.FileUtils;
+import com.example.manager.util.Logl;
 
 import java.io.InputStream;
 import java.util.List;
@@ -41,8 +42,10 @@ public class DownloadTask {
 
     List<DownloadCall> callList;
 
-    private DownloadTask(String url, String fileParent, String fileName, boolean needProgress, boolean needSpeed, boolean forceRepeat, int blockSize) {
+    private DownloadTask(String url, String newFileMd5, String fileParent, String fileName,
+                         boolean needProgress, boolean needSpeed, boolean forceRepeat, int blockSize) {
         this.url = url;
+        this.newFileMd5 = newFileMd5;
         this.fileParent = fileParent;
         this.fileName = fileName;
         this.needProgress = needProgress;
@@ -82,6 +85,7 @@ public class DownloadTask {
     public static class Builder {
 
         String url;
+        String newFileMd5;
         String fileParent;
         String fileName;
         boolean needProgress;
@@ -93,6 +97,12 @@ public class DownloadTask {
             this.url = url;
             return this;
         }
+
+        public Builder newFileMd5(String newFileMd5) {
+            this.newFileMd5 = newFileMd5;
+            return this;
+        }
+
 
         public Builder fileParent(String fileParent) {
             this.fileParent = fileParent;
@@ -126,7 +136,7 @@ public class DownloadTask {
         }
 
         public DownloadTask build() {
-            return new DownloadTask(url, fileParent, fileName,
+            return new DownloadTask(url, newFileMd5, fileParent, fileName,
                     needProgress, needSpeed, forceRepeat, blockSize);
         }
     }
@@ -264,6 +274,14 @@ public class DownloadTask {
         this.taskCall = taskCall;
     }
 
+    public void forceDelete() {
+        setForceRepeat(true);
+        setCacheSize(0);
+        FileUtils.delete(FileUtils.getTargetFilePath(getFileParent(), getFileName()));
+        FileUtils.createNewFile(FileUtils.getTargetFilePath(getFileParent(), getFileName()));
+        DownloadDaoFatory.getDao().deleteByUrl(getUrl());
+    }
+
     public synchronized void cancel() {
         cancel(Status.CANEL);
     }
@@ -287,6 +305,7 @@ public class DownloadTask {
 
 
     public synchronized void dealFinishDownloadCall(int index) {
+        Logl.e("callList.size: " + callList.size());
         if (callList == null || callList.isEmpty()) return;
         for (int i = 0; i < callList.size(); i++) {
             if (callList.get(i).index == index) {

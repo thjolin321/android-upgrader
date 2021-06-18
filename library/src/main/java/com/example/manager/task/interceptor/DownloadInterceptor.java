@@ -2,6 +2,7 @@ package com.example.manager.task.interceptor;
 
 import android.util.Log;
 
+import com.example.library.R;
 import com.example.manager.dispatcher.TaskDispatcher;
 import com.example.manager.task.DownloadCall;
 import com.example.manager.task.DownloadTask;
@@ -25,10 +26,17 @@ public class DownloadInterceptor extends AbstractIntercepter implements TaskInte
     private void createDownloadCall(DownloadTask task) {
         List<DownloadCall> list = new ArrayList<>(task.getInfoList().size());
         task.setCallList(list);
-        for (int i = 0; i < task.getInfoList().size(); i++) {
-            DownloadCall downloadCall = new DownloadCall(DownloadCall.class.getName() + "i", task, i);
-            list.add(downloadCall);
-            TaskDispatcher.getInstance().getmExecutorService().submit(downloadCall);
+        try {
+            for (int i = 0; i < task.getInfoList().size(); i++) {
+                DownloadCall downloadCall = new DownloadCall(DownloadCall.class.getName() + "i", task, i);
+                list.add(downloadCall);
+                Logl.e("添加次数");
+            }
+            for (DownloadCall call : list) {
+                TaskDispatcher.getInstance().getmExecutorService().submit(call);
+            }
+        } catch (Exception e) {
+            Logl.e("下载错误：" + e.getMessage());
         }
     }
 

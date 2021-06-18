@@ -4,6 +4,7 @@ import android.database.Cursor;
 
 import com.example.manager.database.DownloadEntity;
 import com.example.manager.database.base.BaseDbImpl;
+import com.example.manager.util.Logl;
 
 import java.util.List;
 
@@ -16,10 +17,12 @@ public class DaoDownloadImpl extends BaseDbImpl<DownloadEntity> implements DaoDo
     public long qureyAllCacheSize(String url) {
         long size = 0;
         StringBuilder sb = new StringBuilder();
-        sb.append("select sum (progress) from")
+        sb.append("select sum (progress) from ")
                 .append(getTableName())
-                .append("where url = ")
-                .append(url);
+                .append(" where url = '")
+                .append(url)
+                .append("'");
+        Logl.e("查询url:" + sb.toString());
         Cursor cursor = getmSqLiteDatabase().rawQuery(sb.toString(), null);
         if (cursor.moveToFirst()) {
             size = cursor.getLong(0);
@@ -31,12 +34,15 @@ public class DaoDownloadImpl extends BaseDbImpl<DownloadEntity> implements DaoDo
 
     @Override
     public List<DownloadEntity> qureyAllByUrl(String url) {
-        return getmQuerySupport().selection("url = " + url).orderBy("threadId").query();
+        Logl.e("getmQuerySupport()==null :" + (getmQuerySupport() == null));
+        return getmQuerySupport().selection("url = '" + url + "'").orderBy("threadId").query();
     }
 
     @Override
     public long deleteByUrl(String url) {
-        return getmSqLiteDatabase().delete(getTableName(), "url = " + url, null);
+        long a = getmSqLiteDatabase().delete(getTableName(), "url = '" + url + "'", null);
+        Logl.e("删除结果：" + a);
+        return a;
     }
 
 }

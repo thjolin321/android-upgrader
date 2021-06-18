@@ -36,6 +36,7 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
         this.mSqLiteDatabase = sqLiteDatabase;
         this.mClazz = clazz;
         String tableName = DaoUtil.getTableName(mClazz);
+        mQuerySupport = new QuerySupport(sqLiteDatabase, clazz);
         if (isTableExists(tableName)) {
             return;
         }
@@ -89,7 +90,7 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
         mSqLiteDatabase.beginTransaction();
         for (T data : list) {
             // 调用单条插入
-            insert(data);
+            data.setId(insert(data));
         }
         mSqLiteDatabase.setTransactionSuccessful();
         mSqLiteDatabase.endTransaction();
@@ -100,7 +101,7 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
         if (obj.getId() == 0) {
             return insert(obj);
         }
-        return updateByPrimaryKey(obj, obj.id);
+        return updateByPrimaryKey(obj, obj.getId());
     }
 
     @Override
@@ -127,7 +128,7 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
     @Override
     public synchronized long updateByPrimaryKey(T obj, long id) {
         return mSqLiteDatabase.update(DaoUtil.getTableName(mClazz),
-                contentValuesByObj(obj), "id = " + id, null);
+                contentValuesByObj(obj), "id = '" + id + "'", null);
     }
 
     @Override
@@ -165,10 +166,7 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
 
                 mPutMethodArgs[0] = key;
                 mPutMethodArgs[1] = value;
-
                 // 方法使用反射 ， 反射在一定程度上会影响性能
-                // 源码里面  activity实例 反射  View创建反射
-
                 String filedTypeName = field.getType().getName();
                 // 还是使用反射  获取方法  put  缓存方法
                 Method putMethod = mPutMethods.get(filedTypeName);
@@ -255,9 +253,14 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
         }
 
         public List<T> query() {
-            Cursor cursor = mSQLiteDatabase.query(DaoUtil.getTableName(mClazz), mQueryColumns, mQuerySelection,
-                    mQuerySelectionArgs, mQueryGroupBy, mQueryHaving, mQueryOrderBy, mQueryLimit);
-            Log.i("TAG", "query: " + mQuerySelectionArgs[0]);
+            Cursor cursor = null;
+            try {
+                cursor = mSQLiteDatabase.query(DaoUtil.getTableName(mClazz), mQueryColumns, mQuerySelection,
+                        mQuerySelectionArgs, mQueryGroupBy, mQueryHaving, mQueryOrderBy, mQueryLimit);
+                Logl.e("query: " + mQuerySelectionArgs[0]);
+            } catch (Exception e) {
+                Logl.e("query e :" + e.getMessage());
+            }
             clearQueryParams();
             return cursorToList(cursor);
         }
@@ -265,7 +268,7 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
         public T queryLimiteOne() {
             Cursor cursor = mSQLiteDatabase.query(DaoUtil.getTableName(mClazz), mQueryColumns, mQuerySelection,
                     mQuerySelectionArgs, mQueryGroupBy, mQueryHaving, mQueryOrderBy, mQueryLimit);
-            Log.i("TAG", "query: " + mQuerySelectionArgs[0]);
+            Logl.e("query: " + mQuerySelectionArgs[0]);
             clearQueryParams();
             return cursorToList(cursor).get(0);
         }
@@ -295,7 +298,7 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
          */
         private List<T> cursorToList(Cursor cursor) {
             List<T> list = new ArrayList<>();
-            Log.i("TAG", "cursorToList: " + cursor.getCount());
+            Logl.e("cursorToList: " + cursor.getCount());
             if (cursor.moveToFirst()) {
                 do {
                     try {
@@ -337,12 +340,12 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
                                 field.set(instance, value);
                             }
                         }
-                        Log.i("TAG", "cursorToList: " + instance);
+                        Logl.e("cursorToList: " + instance);
                         // 加入集合
                         list.add(instance);
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Log.i("TAG", "cursorToList: " + e);
+                        Logl.e("cursorToList: " + e);
 
                     }
                 } while (cursor.moveToNext());

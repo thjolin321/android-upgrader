@@ -1,12 +1,17 @@
 package com.example.updatefrompatch;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.example.library.Upgrader;
+import com.example.library.bean.ApkPatchBean;
+import com.example.library.bean.ApkUpdateBean;
 import com.example.manager.DownloadManager;
 import com.example.manager.listener.DownloadListener;
 import com.example.manager.task.DownloadTask;
 import com.example.manager.util.Logl;
+import com.example.updatefrompatch.ui.login.LoginActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -45,6 +50,18 @@ public class MainActivity extends AppCompatActivity {
     DownloadTask task;
 
     public void onStart(View view) {
+        testUpdate();
+//        testDownload();
+    }
+
+    private void testUpdate() {
+        Upgrader.with().start(new ApkUpdateBean.Builder()
+                .newApkUrl(url)
+                .newApkVersionCode(2)
+                .build());
+    }
+
+    private void testDownload() {
         DownloadTask.Builder configer = new DownloadTask.Builder();
         configer.url(url)
                 .blockSize(10)

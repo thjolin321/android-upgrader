@@ -4,6 +4,9 @@ import android.text.TextUtils;
 
 import com.example.library.bean.ApkPatchBean;
 import com.example.library.bean.ApkUpdateBean;
+import com.example.library.operate.flow.Flow;
+import com.example.library.operate.flow.WorkFlow;
+import com.example.manager.task.DownloadTask;
 
 import java.util.Collections;
 
@@ -12,38 +15,56 @@ import java.util.Collections;
  */
 public class ChekUpdateImpl implements CheckUpdateInterface {
 
-    String downloadUrl;
+    WorkFlow workFlow;
+
+    DownloadTask.Builder builder;
+
+    ApkUpdateBean apkUpdateBean;
+
+    public ChekUpdateImpl() {
+        workFlow = new WorkFlow();
+        workFlow.setFlow(WorkFlow.FLOW_CHECK);
+    }
 
     //-1 for no need update, 1、for patch, 2 for completeApk, 3 for marcket, 4 for 插件化更新, -2 for wrong type
     @Override
     public int checkUpdateByHistoryVersions(ApkUpdateBean apkUpdateBean) {
+        this.apkUpdateBean = apkUpdateBean;
         if (apkUpdateBean.getCurrentApkVersionCode() >= apkUpdateBean.getNewApkVersionCode()) {
-            downloadUrl = null;
             return -1;
         }
         if (apkUpdateBean.getList() != null) {
             for (ApkPatchBean apkPatchBean : apkUpdateBean.getList()) {
                 if (apkPatchBean.getVersionCode() == apkUpdateBean.getCurrentApkVersionCode()) {
-                    downloadUrl = apkPatchBean.getPatchUrl();
+                    if (builder == null) {
+                        builder = new DownloadTask.Builder();
+                    }
+                    builder.url(apkPatchBean.getPatchUrl());
+                    builder.newFileMd5(apkPatchBean.getPatchMd5());
                     return 1;
                 }
             }
         }
         if (TextUtils.isEmpty(apkUpdateBean.getNewApkUrl())) {
-            downloadUrl = null;
+            builder = null;
             return -2;
         }
-        downloadUrl = apkUpdateBean.getNewApkUrl();
+        if (builder == null) {
+            builder = new DownloadTask.Builder();
+        }
+        builder.url(apkUpdateBean.getNewApkUrl());
+        builder.newFileMd5(apkUpdateBean.getNewApkMd5());
         return 2;
     }
 
-    @Override
-    public String getUpdateUrl() {
-        return downloadUrl;
-    }
 
     @Override
-    public void setUpdateUrl(String url) {
-        this.downloadUrl = url;
+    public WorkFlow getFlow() {
+        if (builder != null) {
+            builder.forceRepeat(true);
+            workFlow.setDownloadTask(builder.build());
+        }
+        return workFlow;
     }
+
 }

@@ -12,6 +12,8 @@ public class Status {
     public static String DOWUNLOAD_ERROR = "下载出错";
     public static String CANEL = "用户取消下载";
     public static String MD5_UNMATCH = "md5值不匹配";
+    public static String PERMISSION_REQUESTING = "权限请求中";
+    public static String PERMISSION_DEMIN = "权限禁止，当前无法操作此目录，建议先下载到App私有目录，再进行后续操作";
 
     public static boolean DEBUG = true;
 

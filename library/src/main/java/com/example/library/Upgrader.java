@@ -1,10 +1,13 @@
 package com.example.library;
 
 import android.annotation.SuppressLint;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 
 import com.example.compose.PatchComposeHelper;
+import com.example.install.GoMarketUtil;
 import com.example.install.InstallHelper;
 import com.example.library.bean.ApkUpdateBean;
 import com.example.library.check.CheckUpdateInterface;
@@ -14,6 +17,7 @@ import com.example.library.download.DownLoadInterface;
 import com.example.library.operate.flow.Flow;
 import com.example.library.operate.flow.WorkFlow;
 import com.example.manager.DownloadManager;
+import com.example.manager.database.DownloadProvider;
 import com.example.manager.listener.DownloadListener;
 import com.example.manager.task.DownloadTask;
 import com.example.manager.util.Logl;
@@ -73,7 +77,7 @@ public class Upgrader {
                 if (flow.getComposeTask() != null) {
                     flow.getComposeTask().setPatchPath(path);
                     if (PatchComposeHelper.patch(flow.getComposeTask()) == 0) {
-                        InstallHelper.install(flow.getComposeTask().getNewFilePath());
+                        InstallHelper.installApk(flow.getComposeTask().getNewFilePath());
                     } else {
                         // 开始尝试全量更新
                         apkUpdateBean.setList(null);
@@ -82,7 +86,12 @@ public class Upgrader {
                     return;
                 }
                 // 完整apk更新
-                InstallHelper.install(path);
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        InstallHelper.install(path);
+                    }
+                },5000);
             }
 
             @Override
@@ -93,11 +102,13 @@ public class Upgrader {
             @Override
             public void failed(String msg) {
                 Logl.e("handleDownload msg: " + msg);
+                // 判断具体失败原因，做相应的处理
                 if (flow.getComposeTask() != null) {
                     apkUpdateBean.setList(null);
                     start(apkUpdateBean);
                 } else {
                     // 尝试应用市场更新 TODO
+                    GoMarketUtil.start(DownloadProvider.context,"com.tencent.weixin");
                 }
             }
         });

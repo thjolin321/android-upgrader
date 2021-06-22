@@ -15,6 +15,7 @@ public class DownloadUtils {
                 closeable.close();
             }
         } catch (IOException e) {
+            Logl.e("关闭流居然能报错？: " + e.getMessage());
             e.printStackTrace();
         }
     }

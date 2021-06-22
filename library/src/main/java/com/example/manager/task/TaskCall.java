@@ -50,6 +50,7 @@ public class TaskCall extends NamedRunnable {
     }
 
     private void start() {
+        // 添加守护程序
         while (taskInterceptor != null) {
             taskInterceptor.operate(task);
             taskInterceptor = taskInterceptor.next();

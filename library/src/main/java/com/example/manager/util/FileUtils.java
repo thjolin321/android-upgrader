@@ -24,7 +24,6 @@ import java.security.NoSuchAlgorithmException;
  */
 public class FileUtils {
 
-
     private static String defaultSaveRootPath;
 
     public static String getDefaultSaveRootPath() {

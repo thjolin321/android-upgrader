@@ -7,23 +7,12 @@ import com.example.manager.constant.Status;
 import com.example.manager.listener.DownloadListener;
 import com.example.manager.task.DownloadTask;
 import com.example.manager.task.TaskCall;
-import com.example.manager.task.interceptor.ConnectIntercepter;
-import com.example.manager.task.interceptor.DatabaseInterceptor;
-import com.example.manager.task.interceptor.DownloadInterceptor;
-import com.example.manager.task.interceptor.FileInterceptor;
-import com.example.manager.task.interceptor.StrategyInterceptor;
-import com.example.manager.task.interceptor.TaskInterceptor;
-import com.example.manager.util.FileUtils;
-import com.example.manager.util.Logl;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import okhttp3.internal.concurrent.Task;
 
 /**
  * Created by tanghao on 2021/5/27
@@ -115,6 +104,4 @@ public class TaskDispatcher implements Lifecycle {
         }
         return false;
     }
-
-
 }

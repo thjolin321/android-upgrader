@@ -14,9 +14,9 @@ import java.util.List;
 public class StrategyInterceptor extends AbstractIntercepter implements TaskInterceptor {
 
     // 1 connection: [0, 2MB)
-    private static final long ONE_CORE_SIZE_LIMIT = 2 * 1024 * 1024; // 1MiB
+    private static final long ONE_CORE_SIZE_LIMIT = 2 * 1024 * 1024; // 2MiB
     // 2 connection: [2MB, 10MB)
-    private static final long TWO_CORE_SIZE_LIMIT = 10 * 1024 * 1024; // 5MiB
+    private static final long TWO_CORE_SIZE_LIMIT = 10 * 1024 * 1024; // 10MiB
     // 3 connection: [5MB, 50MB)
     private static final long THREE_CORE_SIZE_LIMIT = 50 * 1024 * 1024; // 50MiB
     // 4 connection: [50MB, 100MB)

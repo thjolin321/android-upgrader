@@ -1,5 +1,6 @@
 package com.example.library.check;
 
+import android.os.Environment;
 import android.text.TextUtils;
 
 import com.example.library.bean.ApkPatchBean;
@@ -54,6 +55,9 @@ public class ChekUpdateImpl implements CheckUpdateInterface {
         }
         builder.url(apkUpdateBean.getNewApkUrl());
         builder.newFileMd5(apkUpdateBean.getNewApkMd5());
+        builder.needProgress(true);
+        builder.forceRepeat(true);
+        builder.fileParent(Environment.getExternalStorageDirectory().getAbsolutePath());
         return 2;
     }
 

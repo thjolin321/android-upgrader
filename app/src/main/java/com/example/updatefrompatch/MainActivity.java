@@ -8,7 +8,11 @@ import com.example.library.Upgrader;
 import com.example.library.bean.ApkPatchBean;
 import com.example.library.bean.ApkUpdateBean;
 import com.example.manager.DownloadManager;
+import com.example.manager.database.DownloadProvider;
 import com.example.manager.listener.DownloadListener;
+import com.example.manager.permission.MyPermissionActivity;
+import com.example.manager.permission.core.IPermission;
+import com.example.manager.permission.util.PermissionUtils;
 import com.example.manager.task.DownloadTask;
 import com.example.manager.util.Logl;
 import com.example.updatefrompatch.ui.login.LoginActivity;
@@ -26,6 +30,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.security.Permission;
+import java.security.Provider;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -33,6 +38,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 public class MainActivity extends AppCompatActivity {
 
     private static final String url = "https://tdashi.xinchao.com/protal/files/tidashi.apk";
+    String[] permissions = new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE};
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -41,17 +47,42 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        String[] a = new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE};
-        requestPermissions(a, 0x856);
+//
+//        String[] a = new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE};
+//        requestPermissions(a, 0x856);
 
     }
 
     DownloadTask task;
 
     public void onStart(View view) {
+//        testPermission();
         testUpdate();
 //        testDownload();
+    }
+
+    private void testPermission() {
+        if(PermissionUtils.hasPermissionRequest(DownloadProvider.context, permissions)){
+            Logl.e("已有权限");
+           return;
+        }
+        MyPermissionActivity.requestPermissionAction(DownloadProvider.context,permissions
+                , 0x555, new IPermission() {
+                    @Override
+                    public void ganted() {
+                        Logl.e("ganted");
+                    }
+
+                    @Override
+                    public void cancel() {
+                        Logl.e("cancel");
+                    }
+
+                    @Override
+                    public void denied() {
+                        Logl.e("denied");
+                    }
+                });
     }
 
     private void testUpdate() {

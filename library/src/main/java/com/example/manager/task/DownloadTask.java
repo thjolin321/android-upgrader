@@ -9,6 +9,7 @@ import com.example.manager.listener.DownloadListener;
 import com.example.manager.util.FileUtils;
 import com.example.manager.util.Logl;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -42,6 +43,8 @@ public class DownloadTask {
 
     List<DownloadCall> callList;
 
+    int downloadFinishSize;
+
     private DownloadTask(String url, String newFileMd5, String fileParent, String fileName,
                          boolean needProgress, boolean needSpeed, boolean forceRepeat, int blockSize) {
         this.url = url;
@@ -64,7 +67,6 @@ public class DownloadTask {
 
         final AtomicLong sofarBytes;
         volatile long tempProgress;
-
 
         public ProgressController() {
             this.sofarBytes = new AtomicLong(cacheSize);
@@ -282,7 +284,12 @@ public class DownloadTask {
         DownloadDaoFatory.getDao().deleteByUrl(getUrl());
     }
 
+    public void restart() {
+        TaskDispatcher.getInstance().start(this, downloadListener);
+    }
+
     public synchronized void cancel() {
+        downloadFinishSize = 0;
         cancel(Status.CANEL);
     }
 
@@ -306,6 +313,8 @@ public class DownloadTask {
 
     public synchronized void dealFinishDownloadCall(int index) {
         Logl.e("callList.size: " + callList.size());
+        downloadFinishSize++;
+        Logl.e("downloadFinishSize: " + downloadFinishSize + "  blockSize: " + blockSize);
         if (callList == null || callList.isEmpty()) return;
         for (int i = 0; i < callList.size(); i++) {
             if (callList.get(i).index == index) {
@@ -313,8 +322,7 @@ public class DownloadTask {
                 break;
             }
         }
-        if (callList.isEmpty()) {
-            downloadListener.progress(100);
+        if (callList.isEmpty() && downloadFinishSize == blockSize) {
             if (!TextUtils.isEmpty(newFileMd5) && !newFileMd5
                     .equals(FileUtils.fileMd5(FileUtils.getTargetFilePath(fileParent, fileName)))) {
                 // md5与预定值不一样
@@ -322,6 +330,7 @@ public class DownloadTask {
                 return;
             }
             downloadListener.success(FileUtils.getTargetFilePath(fileParent, fileName));
+            TaskDispatcher.getInstance().removeTask(url);
             DownloadDaoFatory.getDao().deleteByUrl(url);
         }
     }

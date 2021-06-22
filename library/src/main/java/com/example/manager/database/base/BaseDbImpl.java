@@ -85,7 +85,7 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
     }
 
     @Override
-    public void insert(List<T> list) {
+    public synchronized void insert(List<T> list) {
         // 批量插入采用 事物
         mSqLiteDatabase.beginTransaction();
         for (T data : list) {

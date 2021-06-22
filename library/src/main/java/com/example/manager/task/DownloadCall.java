@@ -63,8 +63,9 @@ public class DownloadCall extends NamedRunnable {
                 task.dealProgress(length);
                 downloadInfo.addProgress(length);
             }
-            finished();
-        } catch (IOException e) {
+            setFinished(true);
+            Logl.e("isFinish(): "+isFinished());
+        } catch (Exception e) {
             Logl.e("IOException: " + e.getMessage());
             if ("interrupted".equals(e.getMessage())) {
                 return;
@@ -81,6 +82,10 @@ public class DownloadCall extends NamedRunnable {
             DownloadUtils.close(randomAccessFile);
             //保存到数据库
             saveToDb();
+            Logl.e("isFinish(): "+isFinished());
+            if(isFinished()){
+                task.dealFinishDownloadCall(index);
+            }
         }
     }
 
@@ -108,11 +113,6 @@ public class DownloadCall extends NamedRunnable {
     @Override
     protected void interrupted(InterruptedException e) {
         Logl.e("InterruptedException: " + e.getMessage());
-    }
-
-    protected void finished() {
-        task.dealFinishDownloadCall(index);
-        Logl.e("DownloadCall: finished()");
     }
 
     @Override

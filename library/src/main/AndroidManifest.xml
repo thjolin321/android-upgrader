@@ -6,7 +6,16 @@
         <provider
             android:name="com.example.manager.database.DownloadProvider"
             android:authorities="${applicationId}.com.example.manager"
-            android:exported="false"/>
+            android:exported="false" />
+        <activity
+            android:name="com.example.manager.permission.MyPermissionActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <activity android:name=".InstallActivity" android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="cc.xiaobaicz.work.INSTALL_APK" android:exported="true"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

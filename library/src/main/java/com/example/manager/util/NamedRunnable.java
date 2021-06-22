@@ -40,7 +40,6 @@ public abstract class NamedRunnable implements Runnable {
         }
         try {
             execute();
-            finished.getAndSet(true);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             interrupted(e);

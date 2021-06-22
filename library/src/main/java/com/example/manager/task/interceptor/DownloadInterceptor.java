@@ -6,6 +6,7 @@ import com.example.library.R;
 import com.example.manager.dispatcher.TaskDispatcher;
 import com.example.manager.task.DownloadCall;
 import com.example.manager.task.DownloadTask;
+import com.example.manager.util.FileUtils;
 import com.example.manager.util.Logl;
 
 import java.util.ArrayList;
@@ -24,13 +25,15 @@ public class DownloadInterceptor extends AbstractIntercepter implements TaskInte
 
 
     private void createDownloadCall(DownloadTask task) {
+        FileUtils.createNewFile(FileUtils.getTargetFilePath(task.getFileParent(), task.getFileName()));
         List<DownloadCall> list = new ArrayList<>(task.getInfoList().size());
         task.setCallList(list);
         try {
+            Logl.e("task.geInfoList: " + task.getInfoList().size());
             for (int i = 0; i < task.getInfoList().size(); i++) {
-                DownloadCall downloadCall = new DownloadCall(DownloadCall.class.getName() + "i", task, i);
+                DownloadCall downloadCall = new DownloadCall(DownloadCall.class.getName() + i, task, i);
                 list.add(downloadCall);
-                Logl.e("添加次数");
+                Logl.e("添加次数: " + task.getInfoList().get(i).getStartOffset());
             }
             for (DownloadCall call : list) {
                 TaskDispatcher.getInstance().getmExecutorService().submit(call);

@@ -1,0 +1,11 @@
+<resources>
+    <style name="TangCustomDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/bg_dialog_confirm_day</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+</resources>

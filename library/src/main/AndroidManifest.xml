@@ -1,19 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.library">
+    package="com.thjolin.update">
 
     <application>
         <provider
-            android:name="com.example.manager.database.DownloadProvider"
-            android:authorities="${applicationId}.com.example.manager"
+            android:name="com.thjolin.download.database.DownloadProvider"
+            android:authorities="${applicationId}.com.example.download"
             android:exported="false" />
+
         <activity
-            android:name="com.example.manager.permission.MyPermissionActivity"
+            android:name="com.thjolin.download.permission.MyPermissionActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
-        <activity android:name=".InstallActivity" android:launchMode="singleTop">
+        <activity
+            android:name="com.thjolin.install.AAAutilActivity"
+            android:launchMode="singleTop">
             <intent-filter>
-                <action android:name="cc.xiaobaicz.work.INSTALL_APK" android:exported="true"/>
+                <action
+                    android:name="cc.xiaobaicz.work.INSTALL_APK"
+                    android:exported="true" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.thjolin.install.InstallApkActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action
+                    android:name="com.example.android.apis.content.SESSION_API_PACKAGE_INSTALLED"
+                    android:exported="true" />
             </intent-filter>
         </activity>
     </application>

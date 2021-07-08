@@ -10,7 +10,7 @@ extern int executePatch(int argc, char *argv[]);
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_com_enjoy_dexdiff_BsPatchUtils_patch(JNIEnv *env, jclass clazz, jstring old_apk,
+Java_com_thjolin_compose_BsPatchUtils_patch(JNIEnv *env, jclass clazz, jstring old_apk,
                                           jstring new_apk, jstring patch_file) {
     int args = 4;
     char *argv[args];

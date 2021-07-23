@@ -6,7 +6,9 @@ import com.thjolin.compose.PatchComposeHelper;
 import com.thjolin.download.DownloadManager;
 import com.thjolin.download.database.DownloadProvider;
 import com.thjolin.download.listener.DownloadListener;
+import com.thjolin.download.task.DownloadTask;
 import com.thjolin.install.GoMarketUtil;
+import com.thjolin.install.InstallApkActivity;
 import com.thjolin.install.InstallHelper;
 import com.thjolin.update.bean.ApkUpdateBean;
 import com.thjolin.update.check.CheckUpdateInterface;
@@ -23,6 +25,7 @@ import static com.thjolin.update.operate.listener.LifeCycleListener.DOWNLOAD;
 import static com.thjolin.update.operate.listener.LifeCycleListener.FINISH;
 import static com.thjolin.update.operate.listener.LifeCycleListener.INSTALL;
 import static com.thjolin.update.operate.listener.LifeCycleListener.NO_NEED_UPGRADE;
+import static com.thjolin.update.operate.listener.LifeCycleListener.START;
 import static com.thjolin.update.operate.listener.LifeCycleListener.UPGRADE_ERROR;
 
 /**
@@ -30,11 +33,11 @@ import static com.thjolin.update.operate.listener.LifeCycleListener.UPGRADE_ERRO
  */
 public class UpgraderController {
 
-    int currentState = 0;
     LifeCycleListener lifeCycleListener;
     UiListener uiListener;
     private CheckUpdateInterface checkUpdateInterface;
     private UpgraderConfiger configer;
+    private volatile boolean isDestroyed;
 
 
     public UpgraderController() {
@@ -42,6 +45,7 @@ public class UpgraderController {
     }
 
     public void moveToState(int newState) {
+        if (lifeCycleListener == null) return;
         switch (newState) {
             case CHECK:
                 lifeCycleListener.onCheck();
@@ -78,6 +82,11 @@ public class UpgraderController {
 
 
     public void start(@NonNull ApkUpdateBean apkUpdateBean) {
+        if (configer == null) {
+            configer = UpgraderConfiger.createDefaultConfiger();
+            setLifeCycleListener(configer.lifeCycleListener);
+            uiListener = configer.uiListener;
+        }
         dealLifeCycle(CHECK);
         int checkResult = checkUpdateInterface.checkUpdateByHistoryVersions(apkUpdateBean);
         if (checkResult < 1) {
@@ -89,11 +98,28 @@ public class UpgraderController {
             InstallHelper.gotoMarket();
             return;
         }
+        dealLifeCycle(START);
         WorkFlow flow = checkUpdateInterface.getFlow();
-        if (!configer.silent) {
-            uiListener.show(configer.forceUpdate,
-                    flow.getDownloadTask() == null,
-                    flow.getComposeTask() == null);
+        if (!configer.silent && checkUiListener()) {
+            uiListener.setOnRightClick(new InstallApkActivity.OnDialogClick() {
+                @Override
+                public void onCancel() {
+                    lifeCycleListener.onFinish();
+                    if (configer.forceUpdate && configer.forceExitListener != null) {
+                        configer.forceExitListener.exit();
+                    }
+                }
+
+                @Override
+                public void onSure() {
+                    if (flow.getDownloadTask() != null) {
+                        handleDownload(flow, apkUpdateBean);
+                    }
+                }
+            });
+            uiListener.show(configer.needNotification, configer.forceUpdate,
+                    flow.getDownloadTask() != null,
+                    flow.getComposeTask() != null, null, flow.getDownloadTask().build().getFileNameForce());
             return;
         }
         if (flow.getDownloadTask() != null) {
@@ -103,7 +129,9 @@ public class UpgraderController {
 
     private void handleDownload(WorkFlow flow, ApkUpdateBean apkUpdateBean) {
         dealLifeCycle(DOWNLOAD);
-        DownloadManager.with().start(flow.getDownloadTask(), new DownloadListener() {
+        DownloadTask.Builder taskBuilder = flow.getDownloadTask();
+        taskBuilder.needProgress(configer.showDownladProgress);
+        DownloadManager.with().start(taskBuilder.build(), new DownloadListener() {
             @Override
             public void success(String path) {
                 if (flow.getComposeTask() != null) {
@@ -111,32 +139,58 @@ public class UpgraderController {
                     flow.getComposeTask().setPatchPath(path);
                     if (PatchComposeHelper.patch(flow.getComposeTask()) == 0) {
                         path = flow.getComposeTask().getNewFilePath();
+                        if (uiListener != null) {
+                            uiListener.progress(110);
+                        }
                     } else {
                         apkUpdateBean.setList(null);
                         start(apkUpdateBean);
                         return;
                     }
                 }
-                InstallHelper.installWithActivity(path);
+                if (uiListener == null) {
+                    return;
+                }
+                if (configer.silent) {
+                    uiListener.show(false, configer.forceUpdate, configer.forceUpdate, false, path, null);
+                } else {
+                    uiListener.downloadSuccess(path);
+                }
             }
 
             @Override
             public void progress(int progress) {
-                uiListener.progress(progress);
+                Logl.e("progress");
+                if (checkUiListener()) {
+                    uiListener.progress(progress);
+                }
             }
 
             @Override
             public void failed(String msg) {
                 Logl.e("handleDownload msg: " + msg);
                 // 判断具体失败原因，做相应的处理
-                uiListener.failed(msg);
+                if (checkUiListener()) {
+                    uiListener.failed(msg);
+                }
                 if (flow.getComposeTask() != null) {
                     apkUpdateBean.setList(null);
                     start(apkUpdateBean);
                 } else {
+                    dealLifeCycle(CHECK);
                     GoMarketUtil.start(DownloadProvider.context, "com.tencent.weixin");
                 }
             }
         });
     }
+
+    private boolean checkUiListener() {
+        return uiListener != null && !isDestroyed;
+    }
+
+    public void destroy() {
+        isDestroyed = true;
+        DownloadManager.with().destroy();
+    }
+
 }

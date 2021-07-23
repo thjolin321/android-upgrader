@@ -1,26 +1,13 @@
 package com.thjolin.update;
 
 import android.annotation.SuppressLint;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
 
-import com.thjolin.compose.PatchComposeHelper;
-import com.thjolin.install.GoMarketUtil;
-import com.thjolin.install.InstallHelper;
 import com.thjolin.update.bean.ApkUpdateBean;
-import com.thjolin.update.check.CheckUpdateInterface;
-import com.thjolin.update.check.ChekUpdateImpl;
 import com.thjolin.update.configer.UpgraderConfiger;
 import com.thjolin.update.controller.UpgraderController;
-import com.thjolin.update.operate.flow.WorkFlow;
-import com.thjolin.download.DownloadManager;
-import com.thjolin.download.database.DownloadProvider;
-import com.thjolin.download.listener.DownloadListener;
 import com.thjolin.download.task.DownloadTask;
-import com.thjolin.update.operate.listener.LifeCycleListener;
-import com.thjolin.util.Logl;
 
 /**
  * Created by tanghao on 2021/5/24
@@ -28,7 +15,6 @@ import com.thjolin.util.Logl;
 public class Upgrader {
 
     private static boolean DEBUG = true;
-    private UpgraderConfiger configer;
     private UpgraderController controller;
 
     private Upgrader() {
@@ -54,9 +40,12 @@ public class Upgrader {
     }
 
     public void setConfiger(UpgraderConfiger configer) {
-        this.configer = configer;
+        controller.setConfiger(configer);
         controller.setLifeCycleListener(configer.lifeCycleListener);
+    }
 
+    public void destroy() {
+        controller.destroy();
     }
 
 }

@@ -13,17 +13,9 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <activity
-            android:name="com.thjolin.install.AAAutilActivity"
-            android:launchMode="singleTop">
-            <intent-filter>
-                <action
-                    android:name="cc.xiaobaicz.work.INSTALL_APK"
-                    android:exported="true" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name="com.thjolin.install.InstallApkActivity"
             android:excludeFromRecents="true"
+            android:theme="@style/DialogActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action

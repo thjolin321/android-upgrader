@@ -14,22 +14,21 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+        ndk{
+            abiFilters  'armeabi-v7a','arm64-v8a'
+        }
+
+        externalNativeBuild{
+            cmake{
+                abiFilters 'armeabi-v7a','arm64-v8a'
+            }
+        }
     }
-//        ndk{
-//            abiFilters  'x86','armeabi-v7a'
-//        }
-//
-//        externalNativeBuild{
-//            cmake{
-//                abiFilters 'x86','armeabi-v7a'
-//            }
-//        }
-//    }
-//    externalNativeBuild{
-//        cmake{
-//            path 'src/main/cpp/CMakeLists.txt'
-//        }
-//    }
+    externalNativeBuild{
+        cmake{
+            path 'src/main/cpp/CMakeLists.txt'
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false

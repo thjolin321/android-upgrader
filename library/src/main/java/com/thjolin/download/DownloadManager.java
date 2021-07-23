@@ -7,6 +7,7 @@ import android.os.Message;
 
 import androidx.annotation.NonNull;
 
+import com.thjolin.download.database.base.DaoFactory;
 import com.thjolin.download.dispatcher.TaskDispatcher;
 import com.thjolin.download.http.HttpUtil;
 import com.thjolin.download.listener.DownloadListener;
@@ -60,6 +61,11 @@ public class DownloadManager {
 
     public void start(DownloadTask task, DownloadListener downloadListener) {
         TaskDispatcher.getInstance().start(task, downloadListener);
+    }
+
+    public void destroy() {
+        TaskDispatcher.getInstance().destroy();
+        DaoFactory.getFactory().closeDatabase();
     }
 
 

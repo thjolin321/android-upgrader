@@ -4,6 +4,7 @@ import com.thjolin.download.database.DownloadEntity;
 import com.thjolin.download.database.download.DownloadDaoFatory;
 import com.thjolin.download.task.DownloadInfo;
 import com.thjolin.download.task.DownloadTask;
+import com.thjolin.util.Logl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +75,7 @@ public class StrategyInterceptor extends AbstractIntercepter implements TaskInte
         }
         DownloadDaoFatory.getDao().insert(listEntity);
         for (int i = 0; i < list.size(); i++) {
+            Logl.e("是否有Id");
             list.get(i).setId(listEntity.get(i).getId());
         }
     }

@@ -61,7 +61,7 @@ public class TaskCall extends NamedRunnable {
             return true;
         }
         if (task.getStatus().getCode() == 200) {
-            task.dealSuccessListener(FileHelper.getTargetFilePath(task.getFileParent(), task.getFileName()));
+            task.dealRealSuccess();
             return true;
         }
         return false;

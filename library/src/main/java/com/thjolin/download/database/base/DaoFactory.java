@@ -42,6 +42,12 @@ public class DaoFactory {
         return mSqLiteDatabase;
     }
 
+    public void closeDatabase() {
+        if (mSqLiteDatabase != null && mSqLiteDatabase.isOpen()) {
+            mSqLiteDatabase.close();
+        }
+    }
+
     public void init(Context context) {
         // 把数据库放到内存卡里面  判断是否有存储卡 6.0要动态申请权限
         File dbRoot = context.getDatabasePath("uuDownload.db");

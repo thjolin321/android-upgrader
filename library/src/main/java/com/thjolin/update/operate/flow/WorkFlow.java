@@ -2,6 +2,7 @@ package com.thjolin.update.operate.flow;
 
 import com.thjolin.compose.ComposeTask;
 import com.thjolin.download.task.DownloadTask;
+import com.thjolin.download.task.DownloadTask.Builder;
 
 /**
  * Created by tanghao on 2021/6/15
@@ -15,14 +16,14 @@ public class WorkFlow {
     public final static int FLOW_MARKET = 5;
 
     private int flow;
-    private DownloadTask downloadTask;
+    private DownloadTask.Builder downloadTask;
     private ComposeTask composeTask;
 
     public void setFlow(int flow) {
         this.flow = flow;
     }
 
-    public void setDownloadTask(DownloadTask downloadTask) {
+    public void setDownloadTask(DownloadTask.Builder downloadTask) {
         this.downloadTask = downloadTask;
     }
 
@@ -30,7 +31,7 @@ public class WorkFlow {
         this.composeTask = composeTask;
     }
 
-    public DownloadTask getDownloadTask() {
+    public DownloadTask.Builder getDownloadTask() {
         return downloadTask;
     }
 

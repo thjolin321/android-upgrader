@@ -1,4 +1,4 @@
-package com.thjolin.update.exception;
+package com.thjolin.update.operate.exception;
 
 /**
  * Created by tanghao on 2021/6/11

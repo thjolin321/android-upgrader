@@ -12,29 +12,29 @@ public class DownloadInfo {
     private long id;
 
     @IntRange(from = 0)
-    private final long startOffset;
+    private final long start;
     @IntRange(from = 0)
     private final long contentLength;
 
     private final AtomicLong progress;
 
-    public DownloadInfo(long startOffset, long contentLength) {
-        this(0, startOffset, contentLength);
+    public DownloadInfo(long start, long contentLength) {
+        this(0, start, contentLength);
     }
 
-    public DownloadInfo(long id, long startOffset, long contentLength) {
-        this(id, startOffset, contentLength, 0);
+    public DownloadInfo(long id, long start, long contentLength) {
+        this(id, start, contentLength, 0);
     }
 
-    public DownloadInfo(long id, long startOffset, long contentLength, long progress) {
+    public DownloadInfo(long id, long start, long contentLength, long progress) {
         this.id = id;
         this.contentLength = contentLength;
-        this.startOffset = startOffset;
+        this.start = start;
         this.progress = new AtomicLong(progress);
     }
 
-    public long getStartOffset() {
-        return startOffset;
+    public long getStart() {
+        return start;
     }
 
     public long getContentLength() {
@@ -60,7 +60,7 @@ public class DownloadInfo {
     @Override
     public String toString() {
         return "DownloadInfo{" +
-                "startOffset=" + startOffset +
+                "startOffset=" + start +
                 ", contentLength=" + contentLength +
                 ", progress=" + progress +
                 '}';

@@ -1,6 +1,5 @@
 package com.thjolin.download.task;
 
-
 import android.util.Log;
 
 import com.thjolin.download.constant.Status;
@@ -45,23 +44,31 @@ public class DownloadCall extends NamedRunnable {
                 inputStream = task.getBody();
             } else {
                 Response response = HttpUtil.with().syncResponse(task.getUrl(),
-                        downloadInfo.getStartOffset() + downloadInfo.getProgress(),
-                        downloadInfo.getStartOffset() + downloadInfo.getContentLength());
+                        downloadInfo.getStart() + downloadInfo.getProgress(),
+                        downloadInfo.getStart() + downloadInfo.getContentLength());
+                Logl.e("response获取成功：" + Thread.currentThread().getName() + "==" + response.body().contentLength());
                 inputStream = Objects.requireNonNull(response.body()).byteStream();
             }
             //保存文件的路径
             File file = new File(task.getFileParent(), task.getFileName());
             randomAccessFile = new RandomAccessFile(file, "rwd");
             //seek从哪里开始
-            randomAccessFile.seek(downloadInfo.getStartOffset() + downloadInfo.getProgress());
+            randomAccessFile.seek(downloadInfo.getStart() + downloadInfo.getProgress());
+            Logl.e("seek成功：");
             int length;
+            int countDb = 0;
             byte[] bytes = new byte[10 * 1024];
             while ((length = inputStream.read(bytes)) != -1) {
                 //写入
                 randomAccessFile.write(bytes, 0, length);
                 task.dealProgress(length);
                 downloadInfo.addProgress(length);
+//                countDb++;
+//                if (countDb % 1024 == 0) {
+//                    saveToDb();
+//                }
             }
+            Logl.e("写入完成: " + bytes.length);
             setFinished(true);
             Logl.e("isFinish(): " + isFinished());
         } catch (Exception e) {
@@ -93,11 +100,12 @@ public class DownloadCall extends NamedRunnable {
         DownloadEntity entity = new DownloadEntity();
         entity.setProgress(downloadInfo.getProgress());
         entity.setUrl(task.getUrl());
-        entity.setStart(downloadInfo.getStartOffset());
+        entity.setStart(downloadInfo.getStart());
         entity.setContentLength(downloadInfo.getContentLength());
         entity.setThreadId(index);
         entity.setId(downloadInfo.getId());
         //保存到数据库
+        Logl.e("当前插入：entity");
         Logl.e("插入数据库:" + DownloadDaoFatory.getDao().insertOrUpdate(entity) + "");
     }
 

@@ -87,6 +87,7 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
     @Override
     public synchronized void insert(List<T> list) {
         // 批量插入采用 事物
+        Logl.e("批量插入：");
         mSqLiteDatabase.beginTransaction();
         for (T data : list) {
             // 调用单条插入
@@ -127,6 +128,7 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
 
     @Override
     public synchronized long updateByPrimaryKey(T obj, long id) {
+        Logl.e("updateByPrimaryKey");
         return mSqLiteDatabase.update(DaoUtil.getTableName(mClazz),
                 contentValuesByObj(obj), "id = '" + id + "'", null);
     }

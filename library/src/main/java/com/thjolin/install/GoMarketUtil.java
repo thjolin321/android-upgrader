@@ -1,9 +1,12 @@
 package com.thjolin.install;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+
+import androidx.appcompat.app.AlertDialog;
 
 import java.util.List;
 
@@ -22,10 +25,18 @@ public class GoMarketUtil {
 
     //直接跳转不判断是否存在市场应用
     public static void start(Context paramContext, String paramString) {
-        Uri localUri = Uri.parse(paramString);
-        Intent localIntent = new Intent("android.intent.action.VIEW", localUri);
-        localIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        paramContext.startActivity(localIntent);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(paramContext);
+        dialogBuilder.setTitle("即将跳转应用市场下载");
+        dialogBuilder.setNegativeButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Uri localUri = Uri.parse(paramString);
+                Intent localIntent = new Intent("android.intent.action.VIEW", localUri);
+                localIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                paramContext.startActivity(localIntent);
+            }
+        });
+        dialogBuilder.show();
     }
 
     public static boolean judge(Context paramContext, Intent paramIntent) {

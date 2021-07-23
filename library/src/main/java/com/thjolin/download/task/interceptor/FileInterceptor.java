@@ -32,9 +32,9 @@ public class FileInterceptor extends AbstractIntercepter implements TaskIntercep
             FileHelper.creatDirectory(task.getFileParent());
         }
 
-//        if (!dealFilePermission(task)) {
-//            return task;
-//        }
+        if (!dealFilePermission(task)) {
+            return task;
+        }
         // 判断文件是否存在
         // 如果存在，判断是否是已需要的文件
         // 文件与预期不符或者不知道符不符,都不管

@@ -1,4 +1,4 @@
-package com.thjolin.download.task.interceptor;
+ package com.thjolin.download.task.interceptor;
 
 import com.thjolin.download.database.DownloadEntity;
 import com.thjolin.download.database.download.DaoDownload;
@@ -6,7 +6,6 @@ import com.thjolin.download.database.download.DownloadDaoFatory;
 import com.thjolin.download.task.DownloadInfo;
 import com.thjolin.download.task.DownloadTask;
 import com.thjolin.util.Logl;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,5 +49,4 @@ public class DatabaseInterceptor extends AbstractIntercepter implements TaskInte
         }
         return task;
     }
-
 }

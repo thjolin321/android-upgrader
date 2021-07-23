@@ -51,8 +51,6 @@ public class ChekUpdateImpl implements CheckUpdateInterface {
         }
         builder.url(apkUpdateBean.getNewApkUrl());
         builder.newFileMd5(apkUpdateBean.getNewApkMd5());
-        builder.needProgress(true);
-        builder.forceRepeat(false);
         return 2;
     }
 
@@ -60,7 +58,7 @@ public class ChekUpdateImpl implements CheckUpdateInterface {
     @Override
     public WorkFlow getFlow() {
         if (builder != null) {
-            workFlow.setDownloadTask(builder.build());
+            workFlow.setDownloadTask(builder);
         }
         return workFlow;
     }

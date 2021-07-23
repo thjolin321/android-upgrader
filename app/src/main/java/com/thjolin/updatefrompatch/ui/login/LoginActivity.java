@@ -11,6 +11,7 @@ import androidx.core.content.FileProvider;
 
 import com.thjolin.compose.BsPatchUtils;
 import com.thjolin.updatefrompatch.R;
+import com.thjolin.util.Logl;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -27,6 +28,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logl.e("LoginActivity");
         setContentView(R.layout.activity_main);
         testDiff();
     }

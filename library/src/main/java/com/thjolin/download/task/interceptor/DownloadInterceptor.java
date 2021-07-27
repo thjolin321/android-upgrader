@@ -29,18 +29,14 @@ public class DownloadInterceptor extends AbstractIntercepter implements TaskInte
         }
         List<DownloadCall> list = new ArrayList<>(task.getInfoList().size());
         task.setCallList(list);
-        try {
-            Logl.e("task.geInfoList: " + task.getInfoList().size());
-            for (int i = 0; i < task.getInfoList().size(); i++) {
-                DownloadCall downloadCall = new DownloadCall(DownloadCall.class.getName() + i, task, i);
-                list.add(downloadCall);
-                Logl.e("添加次数: " + task.getInfoList().get(i).getStart());
-            }
-            for (DownloadCall call : list) {
-                TaskDispatcher.getInstance().getmExecutorService().submit(call);
-            }
-        } catch (Exception e) {
-            Logl.e("下载错误：" + e.getMessage());
+        Logl.e("task.geInfoList: " + task.getInfoList().size());
+        for (int i = 0; i < task.getInfoList().size(); i++) {
+            DownloadCall downloadCall = new DownloadCall(DownloadCall.class.getName() + i, task, i);
+            list.add(downloadCall);
+            Logl.e("添加次数: " + task.getInfoList().get(i).getStart());
+        }
+        for (DownloadCall call : list) {
+            TaskDispatcher.getInstance().getmExecutorService().submit(call);
         }
     }
 

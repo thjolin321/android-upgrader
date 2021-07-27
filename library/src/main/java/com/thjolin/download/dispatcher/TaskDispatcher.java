@@ -10,12 +10,15 @@ import androidx.annotation.NonNull;
 import com.thjolin.download.constant.Lifecycle;
 import com.thjolin.download.constant.Status;
 import com.thjolin.download.listener.DownloadListener;
+import com.thjolin.download.task.DownloadCall;
 import com.thjolin.download.task.DownloadTask;
 import com.thjolin.download.task.TaskCall;
 import com.thjolin.util.Logl;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -26,10 +29,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class TaskDispatcher implements Lifecycle {
 
+    private static final int RUNNING_SIZE = 3;
     private static volatile TaskDispatcher sDownloadDispatcher;
-    private List<DownloadTask> taskList;
     private ExecutorService mExecutorService;
     private Handler mainHandler = new Handler(Looper.getMainLooper());
+    private List<DownloadTask> taskList;
+    private LinkedList<TaskCall> runningTaskCall;
+    private LinkedList<TaskCall> waitTaskCall;
 
     private TaskDispatcher() {
         init();
@@ -47,7 +53,7 @@ public class TaskDispatcher implements Lifecycle {
     }
 
     @Override
-    public boolean prepare(DownloadTask task) {
+    public synchronized boolean prepare(DownloadTask task) {
         if (task == null) {
             return false;
         }
@@ -58,17 +64,32 @@ public class TaskDispatcher implements Lifecycle {
         if (taskExist(task.getUrl())) {
             return false;
         }
-        taskList.add(task);
         return true;
     }
 
     @Override
-    public void start(DownloadTask task, DownloadListener downloadListener) {
+    public synchronized void start(DownloadTask task, DownloadListener downloadListener) {
         task.setDownloadListener(downloadListener);
         if (!prepare(task)) {
+            task.setStatus(Status.ERRO);
+            task.getStatus().setMsg(Status.TASK_EXIST);
+            task.dealFailedListener(Status.TASK_EXIST);
             return;
         }
-        mExecutorService.submit(new TaskCall(task));
+        taskList.add(task);
+        if (runningTaskCall == null) {
+            runningTaskCall = new LinkedList<>();
+            waitTaskCall = new LinkedList<>();
+        }
+        TaskCall taskCall = new TaskCall(task);
+        if (runningTaskCall.size() < RUNNING_SIZE) {
+            Logl.e("直接执行");
+            runningTaskCall.add(taskCall);
+            mExecutorService.submit(taskCall);
+        } else {
+            Logl.e("等待");
+            waitTaskCall.add(taskCall);
+        }
     }
 
     @Override
@@ -76,6 +97,18 @@ public class TaskDispatcher implements Lifecycle {
         for (DownloadTask task : taskList) {
             task.cancel();
         }
+    }
+
+    public synchronized void executeNextTaskCall() {
+        Logl.e("executeNextTaskCall");
+        if (waitTaskCall == null) return;
+        TaskCall taskCall = waitTaskCall.poll();
+        if (taskCall == null) {
+            return;
+        }
+        runningTaskCall.add(taskCall);
+        mExecutorService.submit(taskCall);
+        Logl.e("executeNextTaskCall执行：" + taskCall.getTask().getUrl());
     }
 
     public ExecutorService getmExecutorService() {
@@ -93,14 +126,19 @@ public class TaskDispatcher implements Lifecycle {
         return sDownloadDispatcher;
     }
 
-    public void removeTask(String url) {
+    public synchronized void removeTask(String url) {
         Logl.e("removeTask  url " + url);
-        Logl.e("taskList  " + taskList.toString());
-        if (taskList == null) return;
         for (int i = 0; i < taskList.size(); i++) {
             if (taskList.get(i).getUrl().equals(url)) {
                 taskList.remove(i);
                 Logl.e("taskList return " + taskList.toString());
+                break;
+            }
+        }
+        for (int i = 0; i < runningTaskCall.size(); i++) {
+            if (runningTaskCall.get(i).getTask().getUrl().equals(url)) {
+                runningTaskCall.remove(i);
+                executeNextTaskCall();
                 return;
             }
         }
@@ -120,6 +158,17 @@ public class TaskDispatcher implements Lifecycle {
 
     public void moveToMainThread(Runnable runnable) {
         mainHandler.post(runnable);
+    }
+
+    public void inspectRunningAndWait() {
+        Logl.e("running: " + runningTaskCall.size());
+        Logl.e("wait: " + waitTaskCall.size());
+        for (TaskCall call : runningTaskCall) {
+            Logl.e("Running: " + call.getTask().getUrl());
+        }
+        for (TaskCall call : waitTaskCall) {
+            Logl.e("waitTaskCall: " + call.getTask().getUrl());
+        }
     }
 
 }

@@ -9,11 +9,13 @@ import com.thjolin.download.database.DownloadProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -176,22 +178,6 @@ public class FileHelper {
         return flag;
     }
 
-    private static long getFileSize(File file) {
-        long size = 0;
-        try {
-            if (file.exists()) {
-                FileInputStream fis = null;
-                fis = new FileInputStream(file);
-                size = fis.available();
-            } else {
-                file.createNewFile();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return size;
-    }
-
     public static boolean createNewFile(String file) {
         return createNewFile(file, null);
     }
@@ -250,6 +236,33 @@ public class FileHelper {
         if (!dir.exists() || !dir.isDirectory()) {
             dir.mkdirs();
         }
+    }
+
+    public static long getFileSize(File f){
+        FileChannel fc= null;
+        long fileSize = 0;
+        try {
+            if (f.exists() && f.isFile()){
+                FileInputStream fis= new FileInputStream(f);
+                fc= fis.getChannel();
+                fileSize = fc.size();
+            }else{
+                Log.e("getFileSize","file doesn't exist or is not a file");
+            }
+        } catch (FileNotFoundException e) {
+            Log.e("getFileSize",e.getMessage());
+        } catch (IOException e) {
+            Log.e("getFileSize",e.getMessage());
+        } finally {
+            if (null!=fc){
+                try{
+                    fc.close();
+                }catch(IOException e){
+                    Log.e("getFileSize",e.getMessage());
+                }
+            }
+        }
+        return fileSize;
     }
 
 

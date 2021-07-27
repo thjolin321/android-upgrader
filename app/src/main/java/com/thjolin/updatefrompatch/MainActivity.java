@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import com.facebook.stetho.Stetho;
+import com.thjolin.download.dispatcher.TaskDispatcher;
 import com.thjolin.download.listener.DownloadListenerWithSpeed;
 import com.thjolin.install.InstallHelper;
 import com.thjolin.ui.PDialog;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String url1 = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.article.pchome.net%2F00%2F37%2F68%2F81%2Fpic_lib%2Fs960x639%2F12325295252018x49zdm09qs960x639.jpg&refer=http%3A%2F%2Fimg.article.pchome.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1627633198&t=29a8b1abafead8cf5368c6695a331d77";
     private static final String url2 = "https://s9.pstatp.com/package/apk/lark/1583_40455/lark_feishu_website_organic_and_v1583_40455_7ea0_1626081724.apk?v=1626081732";
     private static final String url3 = "https://dcdown.pc6.com/apk/22c4185e163ff460e9557c1be753012f/2106/23/2113918.apk";
+    private static final String url4 = "https://dldir1.qq.com/weixin/android/weixin807android1920_arm64.apk";
     String[] permissions = new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE};
     ImageView aaa;
 
@@ -58,9 +60,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void onStart(View view) {
 //        toInstallPermissionSettingIntent();
-//        testUpdate();
+        testUpdate();
 //        testInstall();
-        speedTest();
+//        testDownload();
+//        speedTest();
 //        testPermission();
     }
 
@@ -123,9 +126,10 @@ public class MainActivity extends AppCompatActivity {
     private void speedTest() {
         PDialog progressDialog = new PDialog(this);
         DownloadTask.Builder configer = new DownloadTask.Builder();
-        configer.url(url3)
+        configer.url(url4)
                 .blockSize(10)
-                .fileName("qqqqqqqwwwww.apk")
+                .newFileMd5("df2f045dfa854d8461d9cefe08b813c8")
+                .fileName("a1111111.apk")
                 .forceRepeat(false)
                 .needSpeed(true)
                 .needProgress(true);
@@ -133,10 +137,7 @@ public class MainActivity extends AppCompatActivity {
         DownloadManager.with().start(task, new DownloadListenerWithSpeed() {
 
             @Override
-            public void progressWithSpeed(int progress, String speed) {
-                Logl.e("进度TAG000000000: " + progress);
-                Logl.e("速度：" + speed);
-                progressDialog.progress(progress);
+            public void speed(String speed) {
                 progressDialog.showSpeed(speed);
             }
 
@@ -154,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void progress(int progress) {
+                progressDialog.progress(progress);
             }
 
             @Override
@@ -181,9 +183,7 @@ public class MainActivity extends AppCompatActivity {
         DownloadTask.Builder configer = new DownloadTask.Builder();
         configer.url(url)
                 .blockSize(10)
-                .fileName("aaaa.apk")
                 .forceRepeat(false)
-                .fileParent(Environment.getExternalStorageDirectory().getPath() + File.separator + "tang")
                 .needProgress(true);
         task = configer.build();
         DownloadManager.with().start(task, new DownloadListener() {
@@ -219,6 +219,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSure() {
+                TaskDispatcher.getInstance().inspectRunningAndWait();
             }
         });
 
@@ -298,6 +299,17 @@ public class MainActivity extends AppCompatActivity {
                 Logl.e("failed: " + meg);
             }
         });
+
+        DownloadManager.with().start(new DownloadTask.Builder().url(url)
+                .fileName("aaaaa11111")
+                .build(),null);
+        DownloadManager.with().start(new DownloadTask.Builder().url(url)
+                .fileName("aaaaa22222")
+                .build(),null);
+
+        DownloadManager.with().start(new DownloadTask.Builder().url(url3)
+                .fileName("aaaaa222221111111")
+                .build(),null);
     }
 
     public void onStop(View view) {

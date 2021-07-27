@@ -68,5 +68,4 @@ public class DownloadManager {
         DaoFactory.getFactory().closeDatabase();
     }
 
-
 }

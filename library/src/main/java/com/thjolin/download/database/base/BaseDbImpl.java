@@ -13,6 +13,7 @@ import com.thjolin.util.Logl;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -306,10 +307,14 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
                     try {
                         T instance = mClazz.newInstance();
                         Field[] fields = mClazz.getDeclaredFields();
-                        for (Field field : fields) {
+                        Field fieldId = mClazz.getDeclaredField("id");
+                        Field[] fields1 = Arrays.copyOf(fields, fields.length + 1);
+                        fields1[fields1.length - 1] = fieldId;
+                        for (Field field : fields1) {
                             // 遍历属性
                             field.setAccessible(true);
                             String name = field.getName();
+                            Logl.e("反射name: " + name);
                             // 获取角标
                             int index = cursor.getColumnIndex(name);
                             if (index == -1) {
@@ -317,30 +322,28 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
                             }
                             // 通过反射获取 游标的方法
                             Method cursorMethod = cursorMethod(field.getType());
-                            if (cursorMethod != null) {
-                                Object value = cursorMethod.invoke(cursor, index);
-                                if (value == null) {
-                                    continue;
-                                }
-                                // 处理一些特殊的部分
-                                if (field.getType() == boolean.class || field.getType() == Boolean.class) {
-                                    if ("0".equals(String.valueOf(value))) {
-                                        value = false;
-                                    } else if ("1".equals(String.valueOf(value))) {
-                                        value = true;
-                                    }
-                                } else if (field.getType() == char.class || field.getType() == Character.class) {
-                                    value = ((String) value).charAt(0);
-                                } else if (field.getType() == Date.class) {
-                                    long date = (Long) value;
-                                    if (date <= 0) {
-                                        value = null;
-                                    } else {
-                                        value = new Date(date);
-                                    }
-                                }
-                                field.set(instance, value);
+                            Object value = cursorMethod.invoke(cursor, index);
+                            if (value == null) {
+                                continue;
                             }
+                            // 处理一些特殊的部分
+                            if (field.getType() == boolean.class || field.getType() == Boolean.class) {
+                                if ("0".equals(String.valueOf(value))) {
+                                    value = false;
+                                } else if ("1".equals(String.valueOf(value))) {
+                                    value = true;
+                                }
+                            } else if (field.getType() == char.class || field.getType() == Character.class) {
+                                value = ((String) value).charAt(0);
+                            } else if (field.getType() == Date.class) {
+                                long date = (Long) value;
+                                if (date <= 0) {
+                                    value = null;
+                                } else {
+                                    value = new Date(date);
+                                }
+                            }
+                            field.set(instance, value);
                         }
                         Logl.e("cursorToList: " + instance);
                         // 加入集合
@@ -348,7 +351,6 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
                     } catch (Exception e) {
                         e.printStackTrace();
                         Logl.e("cursorToList: " + e);
-
                     }
                 } while (cursor.moveToNext());
             }
@@ -382,6 +384,4 @@ public class BaseDbImpl<T extends BaseDO> implements BaseDb<T> {
             return methodName;
         }
     }
-
-
 }

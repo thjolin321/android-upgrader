@@ -3,6 +3,7 @@ package com.thjolin.download.task;
 import android.text.TextUtils;
 
 import com.thjolin.download.constant.Status;
+import com.thjolin.download.database.DownloadEntity;
 import com.thjolin.download.database.download.DownloadDaoFatory;
 import com.thjolin.download.dispatcher.TaskDispatcher;
 import com.thjolin.download.listener.DownloadListener;
@@ -14,6 +15,7 @@ import com.thjolin.util.Utils;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -27,13 +29,15 @@ public class DownloadTask {
     String fileName;
     boolean needProgress;
     boolean needSpeed;
-    boolean needMoveToMainThread = true;
+    boolean needMoveToMainThread;
     boolean forceRepeat;
     int blockSize;
     long totalSize;
     long cacheSize;
+    int progressDivide;
     Status status;
     InputStream body;
+
 
     // 一个task对应一个进度控制器
     ProgressController progressController;
@@ -42,14 +46,16 @@ public class DownloadTask {
 
     TaskCall taskCall;
 
-    List<DownloadInfo> infoList;
+    List<DownloadEntity> infoList;
 
     List<DownloadCall> callList;
 
     int downloadFinishSize;
 
     private DownloadTask(String url, String newFileMd5, String fileParent, String fileName,
-                         boolean needProgress, boolean needSpeed, boolean forceRepeat, boolean needMoveToMainThread, int blockSize) {
+                         boolean needProgress, boolean needSpeed,
+                         boolean forceRepeat, boolean needMoveToMainThread,
+                         int blockSize, int progressDivide) {
         this.url = url;
         this.newFileMd5 = newFileMd5;
         this.fileParent = fileParent;
@@ -59,6 +65,7 @@ public class DownloadTask {
         this.forceRepeat = forceRepeat;
         this.needMoveToMainThread = needMoveToMainThread;
         this.blockSize = blockSize;
+        this.progressDivide = progressDivide;
         init();
     }
 
@@ -70,12 +77,12 @@ public class DownloadTask {
     private final class ProgressController {
 
         final AtomicLong sofarBytes;
-        AtomicLong tempProgress;
+        AtomicInteger tempProgress;
         SpeedAssist speedAssist;
 
         public ProgressController() {
             this.sofarBytes = new AtomicLong(cacheSize);
-            this.tempProgress = new AtomicLong((int) (cacheSize * 100 / totalSize));
+            this.tempProgress = new AtomicInteger((int) (cacheSize * 100 / totalSize));
             if (needProgress) {
                 speedAssist = new SpeedAssist();
             }
@@ -83,15 +90,18 @@ public class DownloadTask {
 
         public void progress(long progress) {
             long sofar = sofarBytes.addAndGet(progress);
-            int finalProgress = (int) (sofar / (float) totalSize * 100);
-            if (needProgress) {
+            int finalProgress = (int) (sofar * 100 / totalSize);
+            if (isNeedSpeed()) {
                 speedAssist.downloading(progress);
             }
             if (finalProgress <= tempProgress.get()) {
                 return;
             }
             tempProgress.set(finalProgress);
-            if (needProgress) {
+            if (tempProgress.get() % progressDivide != 0) {
+                return;
+            }
+            if (isNeedSpeed()) {
                 dealProgressListener(finalProgress, speedAssist.speed());
             } else {
                 dealProgressListener(finalProgress);
@@ -108,8 +118,9 @@ public class DownloadTask {
         boolean needProgress;
         boolean needSpeed;
         boolean forceRepeat;
-        boolean needMoveToMainThread;
+        boolean needMoveToMainThread = true;
         int blockSize;
+        int progressDivide = 1;
 
         public Builder url(String url) {
             this.url = url;
@@ -151,15 +162,21 @@ public class DownloadTask {
             return this;
         }
 
+        public Builder progressDivide(int progressDivide) {
+            this.progressDivide = progressDivide;
+            return this;
+        }
+
         public Builder blockSize(int blockSize) {
             if (blockSize > 5) blockSize = 5;
             this.blockSize = blockSize;
             return this;
         }
 
+
         public DownloadTask build() {
             return new DownloadTask(url, newFileMd5, fileParent, fileName,
-                    needProgress, needSpeed, forceRepeat, needMoveToMainThread, blockSize);
+                    needProgress, needSpeed, forceRepeat, needMoveToMainThread, blockSize, progressDivide);
         }
     }
 
@@ -203,7 +220,7 @@ public class DownloadTask {
     }
 
     public boolean isNeedSpeed() {
-        return needSpeed;
+        return needSpeed && downloadListener != null && downloadListener instanceof DownloadListenerWithSpeed;
     }
 
     public void setNeedSpeed(boolean needSpeed) {
@@ -244,11 +261,11 @@ public class DownloadTask {
         }
     }
 
-    public List<DownloadInfo> getInfoList() {
+    public List<DownloadEntity> getInfoList() {
         return infoList;
     }
 
-    public void setInfoList(List<DownloadInfo> infoList) {
+    public void setInfoList(List<DownloadEntity> infoList) {
         this.infoList = infoList;
     }
 
@@ -319,6 +336,9 @@ public class DownloadTask {
     }
 
     public synchronized void cancel() {
+        if (status.getCode() == Status.DOWN) {
+            return;
+        }
         Logl.e("task cancel");
         downloadFinishSize = 0;
         cancel(Status.CANEL);
@@ -337,7 +357,7 @@ public class DownloadTask {
         if (status.getCode() == Status.ERRO) {
             return;
         }
-        dealFialedListener(msg);
+        dealFailedListener(msg);
         setStatus(Status.ERRO);
     }
 
@@ -354,10 +374,19 @@ public class DownloadTask {
             }
         }
         if (callList.isEmpty() && downloadFinishSize == blockSize) {
+//            if (FileHelper.getTargetFilePath(fileParent, fileName).length() != totalSize) {
+//                dealFailedListener(Status.DOWUNLOAD_ERROR);
+//                forceDelete();
+//                Logl.e("文件长度不一致");
+//                return;
+//            }
+            Logl.e("newFileMD5:" + newFileMd5);
+            Logl.e("now md5: " + FileHelper.fileMd5(FileHelper.getTargetFilePath(fileParent, fileName)));
             if (!TextUtils.isEmpty(newFileMd5) && !newFileMd5
                     .equals(FileHelper.fileMd5(FileHelper.getTargetFilePath(fileParent, fileName)))) {
                 // md5与预定值不一样
-                dealFialedListener(Status.MD5_UNMATCH);
+                Logl.e("MD5不一致");
+                dealFailedListener(Status.MD5_UNMATCH);
                 return;
             }
             dealRealSuccess();
@@ -375,39 +404,40 @@ public class DownloadTask {
             TaskDispatcher.getInstance().moveToMainThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (needSpeed) {
+                    if (isNeedSpeed()) {
                         ((DownloadListenerWithSpeed) downloadListener)
-                                .progressWithSpeed(100, "0.0 kB/s");
+                                .speed("0.0 kB/s");
                     }
+                    downloadListener.progress(100);
                     downloadListener.success(path);
                 }
             });
         } else {
-            if (needSpeed) {
+            if (isNeedSpeed()) {
                 ((DownloadListenerWithSpeed) downloadListener)
-                        .progressWithSpeed(100, "0.0 kB/s");
+                        .speed("0.0 kB/s");
             }
             downloadListener.success(path);
         }
     }
 
-    public void dealFialedListener(String msg) {
+    public void dealFailedListener(String msg) {
         if (downloadListener == null) return;
         if (needMoveToMainThread) {
             TaskDispatcher.getInstance().moveToMainThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (needSpeed) {
+                    if (isNeedSpeed()) {
                         ((DownloadListenerWithSpeed) downloadListener)
-                                .progressWithSpeed(progressController.tempProgress.intValue(), "0.0 kB/s");
+                                .speed("0.0 kB/s");
                     }
                     downloadListener.failed(msg);
                 }
             });
         } else {
-            if (needSpeed) {
+            if (isNeedSpeed()) {
                 ((DownloadListenerWithSpeed) downloadListener)
-                        .progressWithSpeed(progressController.tempProgress.intValue(), "0.0 kB/s");
+                        .speed("0.0 kB/s");
             }
             downloadListener.failed(msg);
         }
@@ -437,11 +467,13 @@ public class DownloadTask {
             TaskDispatcher.getInstance().moveToMainThread(new Runnable() {
                 @Override
                 public void run() {
-                    ((DownloadListenerWithSpeed) downloadListener).progressWithSpeed(pro, speed);
+                    downloadListener.progress(pro);
+                    ((DownloadListenerWithSpeed) downloadListener).speed(speed);
                 }
             });
         } else {
-            ((DownloadListenerWithSpeed) downloadListener).progressWithSpeed(pro, speed);
+            downloadListener.progress(pro);
+            ((DownloadListenerWithSpeed) downloadListener).speed(speed);
         }
     }
 }

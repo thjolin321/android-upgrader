@@ -1,11 +1,12 @@
- package com.thjolin.download.task.interceptor;
+package com.thjolin.download.task.interceptor;
 
+import com.thjolin.download.constant.Status;
 import com.thjolin.download.database.DownloadEntity;
 import com.thjolin.download.database.download.DaoDownload;
 import com.thjolin.download.database.download.DownloadDaoFatory;
-import com.thjolin.download.task.DownloadInfo;
 import com.thjolin.download.task.DownloadTask;
 import com.thjolin.util.Logl;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,19 +28,14 @@ public class DatabaseInterceptor extends AbstractIntercepter implements TaskInte
             task.forceDelete();
             return task;
         }
+        task.setCacheSize(dbSize);
         // 判断文件长度是否变化，在此若长度没变视为同一个文件下载连接。
-        List<DownloadInfo> list = new ArrayList<>();
-        task.setInfoList(list);
         List<DownloadEntity> entityList = daoDownload.qureyAllByUrl(task.getUrl());
-        int totalDbSize = 0;
+        task.setInfoList(entityList);
+        long totalDbSize = 0;
         for (DownloadEntity entity : entityList) {
             Logl.e(entity.toString());
             totalDbSize += entity.getContentLength();
-            if (entity.getProgress() == entity.getContentLength()) {
-                continue;
-            }
-            Logl.e("添加缓存开始");
-            list.add(new DownloadInfo(entity.getId(), entity.getStart() + entity.getProgress(), entity.getContentLength()));
         }
         Logl.e("totalDbSize:" + totalDbSize);
         Logl.e("task.getTotalSize():" + task.getTotalSize());

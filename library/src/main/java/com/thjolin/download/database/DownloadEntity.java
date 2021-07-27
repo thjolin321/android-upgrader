@@ -4,6 +4,7 @@ import com.thjolin.download.database.base.BaseDO;
 
 public class DownloadEntity extends BaseDO {
 
+
     // 开始下载的位置
     private long start;
 
@@ -27,7 +28,16 @@ public class DownloadEntity extends BaseDO {
         this.contentLength = contentLength;
     }
 
-    public DownloadEntity(){
+    public DownloadEntity(long id,long start, String url, int threadId, long progress, long contentLength) {
+        setId(id);
+        this.start = start;
+        this.url = url;
+        this.threadId = threadId;
+        this.progress = progress;
+        this.contentLength = contentLength;
+    }
+
+    public DownloadEntity() {
     }
 
     public long getProgress() {
@@ -63,7 +73,9 @@ public class DownloadEntity extends BaseDO {
         return start;
     }
 
-
+    public void addProgress(long pro) {
+        progress += pro;
+    }
 
     public long getContentLength() {
         return contentLength;
@@ -81,6 +93,8 @@ public class DownloadEntity extends BaseDO {
                 ", threadId=" + threadId +
                 ", progress=" + progress +
                 ", contentLength=" + contentLength +
+                ", id=" + getId() +
                 '}';
     }
+
 }

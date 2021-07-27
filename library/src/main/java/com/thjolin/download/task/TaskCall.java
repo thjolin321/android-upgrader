@@ -6,7 +6,7 @@ import com.thjolin.download.task.interceptor.DownloadInterceptor;
 import com.thjolin.download.task.interceptor.FileInterceptor;
 import com.thjolin.download.task.interceptor.StrategyInterceptor;
 import com.thjolin.download.task.interceptor.TaskInterceptor;
-import com.thjolin.util.FileHelper;
+import com.thjolin.util.Logl;
 import com.thjolin.util.NamedRunnable;
 
 /**
@@ -45,6 +45,7 @@ public class TaskCall extends NamedRunnable {
     private void start() {
         // 添加守护程序
         while (taskInterceptor != null) {
+            Logl.e("Interceptor Name: " + taskInterceptor.getClass().getName());
             taskInterceptor.operate(task);
             taskInterceptor = taskInterceptor.next();
             if (checkStatus()) {
@@ -56,7 +57,7 @@ public class TaskCall extends NamedRunnable {
 
     private boolean checkStatus() {
         if (task.getStatus().getCode() == -1) {
-            task.dealFialedListener(task.getStatus().getMsg());
+            task.dealFailedListener(task.getStatus().getMsg());
             task.cancel();
             return true;
         }
@@ -65,6 +66,10 @@ public class TaskCall extends NamedRunnable {
             return true;
         }
         return false;
+    }
+
+    public DownloadTask getTask(){
+        return task;
     }
 
 }

@@ -8,8 +8,6 @@ public abstract class BaseDO implements Serializable {
 
     long id;
 
-    private Map<String, Object> queryParams;
-
     public long getId() {
         return id;
     }
@@ -17,6 +15,8 @@ public abstract class BaseDO implements Serializable {
     public void setId(long id) {
         this.id = id;
     }
+
+    private Map<String, Object> queryParams;
 
     public void addQueryParam(String key, Object value) {
         if (queryParams == null) {

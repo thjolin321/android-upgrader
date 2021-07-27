@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_exit">退出</string>
+    <string name="app_download">立即下载</string>
+    <string name="downloading">下载中…</string>
+    <string name="download_retry">重试</string>
+    <string name="installing">安装中</string>
+    <string name="composing">合成中</string>
+    <string name="download_name">下载</string>
+</resources>

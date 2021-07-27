@@ -45,7 +45,7 @@ public class FileInterceptor extends AbstractIntercepter implements TaskIntercep
                     task.setStatus(Status.DOWN);
                 }
             }
-            task.setCacheSize(file.length());
+            task.setCacheSize(FileHelper.getFileSize(file));
             if (task.forceRepeat()) {
                 task.forceDelete();
             }

@@ -2,7 +2,6 @@ package com.thjolin.download.task.interceptor;
 
 import com.thjolin.download.database.DownloadEntity;
 import com.thjolin.download.database.download.DownloadDaoFatory;
-import com.thjolin.download.task.DownloadInfo;
 import com.thjolin.download.task.DownloadTask;
 import com.thjolin.util.Logl;
 
@@ -26,14 +25,14 @@ public class StrategyInterceptor extends AbstractIntercepter implements TaskInte
 
     @Override
     public DownloadTask operate(DownloadTask task) {
+        if (task.isNeedProgress() && task.getDownloadListener() != null) {
+            task.createProgressController();
+        }
         if (task.getInfoList() != null) {
             return task;
         }
         countCoreBlockSize(task);
         createDownTask(task);
-        if (task.isNeedProgress() && task.getDownloadListener() != null) {
-            task.createProgressController();
-        }
         return task;
     }
 
@@ -58,25 +57,21 @@ public class StrategyInterceptor extends AbstractIntercepter implements TaskInte
         final long eachLength = task.getTotalSize() / task.getBlockSize();
         long startOffset = 0;
         long contentLength = 0;
-        List<DownloadInfo> list = new ArrayList<>();
-        task.setInfoList(list);
         List<DownloadEntity> listEntity = new ArrayList<>();
+        task.setInfoList(listEntity);
         for (int i = 0; i < task.getBlockSize(); i++) {
             startOffset = startOffset + contentLength;
             if (i == 0) {
-                // first block do more, because he start first
                 final long remainLength = task.getTotalSize() % task.getBlockSize();
                 contentLength = eachLength + remainLength;
             } else {
                 contentLength = eachLength;
             }
-            list.add(new DownloadInfo(startOffset, contentLength));
             listEntity.add(new DownloadEntity(startOffset, task.getUrl(), i, 0, contentLength));
         }
         DownloadDaoFatory.getDao().insert(listEntity);
-        for (int i = 0; i < list.size(); i++) {
-            Logl.e("是否有Id");
-            list.get(i).setId(listEntity.get(i).getId());
+        for (int i = 0; i < listEntity.size(); i++) {
+            Logl.e("是否有Id: " + listEntity.get(i).getId());
         }
     }
 }

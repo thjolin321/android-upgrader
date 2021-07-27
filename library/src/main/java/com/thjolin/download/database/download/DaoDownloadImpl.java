@@ -6,6 +6,7 @@ import com.thjolin.download.database.DownloadEntity;
 import com.thjolin.download.database.base.BaseDbImpl;
 import com.thjolin.util.Logl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,8 +35,35 @@ public class DaoDownloadImpl extends BaseDbImpl<DownloadEntity> implements DaoDo
 
     @Override
     public List<DownloadEntity> qureyAllByUrl(String url) {
-        Logl.e("getmQuerySupport()==null :" + (getmQuerySupport() == null));
-        return getmQuerySupport().selection("url = '" + url + "'").orderBy("threadId").query();
+        // 手写sql，不用反射，提升效率
+        String sql = "SELECT * FROM DownloadEntity WHERE url = '" + url + "' ORDER BY threadId";
+        ArrayList<DownloadEntity> list = new ArrayList<>();
+        Cursor cursor = null;
+        try {
+            Logl.e("sql: " + sql);
+            cursor = getmSqLiteDatabase().rawQuery(sql, null);
+            if (cursor != null) {
+                if (!cursor.moveToFirst()) {
+                    return null;
+                }
+                do {
+                    long id = cursor.getLong(cursor.getColumnIndex("id"));
+                    int threadId = cursor.getInt(cursor.getColumnIndex("threadId"));
+                    long progress = cursor.getLong(cursor.getColumnIndex("progress"));
+                    long contentLength = cursor.getInt(cursor.getColumnIndex("contentLength"));
+                    long start = cursor.getInt(cursor.getColumnIndex("start"));
+                    String urlName = cursor.getString(cursor.getColumnIndex("url"));
+                    list.add(new DownloadEntity(id, start, urlName, threadId, progress, contentLength));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Logl.e("sql错误：" + e.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return list;
     }
 
     @Override

@@ -13,6 +13,7 @@ import com.thjolin.util.NamedRunnable;
 import java.io.File;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileLock;
 import java.util.Objects;
 
 import okhttp3.Response;
@@ -24,28 +25,34 @@ public class DownloadCall extends NamedRunnable {
 
     private final static int RETRY_COUNT = 5;
     int retry = 0;
-    DownloadInfo downloadInfo;
+    DownloadEntity downloadEntity;
     DownloadTask task;
     int index;
+    volatile boolean canceled;
+    volatile boolean finishing;
 
     public DownloadCall(String name, DownloadTask task, int index) {
         super(name);
         this.task = task;
-        this.downloadInfo = task.getInfoList().get(index);
+        this.downloadEntity = task.getInfoList().get(index);
         this.index = index;
     }
 
     @Override
     protected void execute() {
+        Logl.e("DownloadCall: " + downloadEntity.getProgress());
         InputStream inputStream = null;
         RandomAccessFile randomAccessFile = null;
+        if (downloadEntity.getProgress() == downloadEntity.getContentLength() || canceled || finishing) {
+            return;
+        }
         try {
             if (task.getBlockSize() == 1 && task.getBody() != null) {
                 inputStream = task.getBody();
             } else {
                 Response response = HttpUtil.with().syncResponse(task.getUrl(),
-                        downloadInfo.getStart() + downloadInfo.getProgress(),
-                        downloadInfo.getStart() + downloadInfo.getContentLength());
+                        downloadEntity.getStart() + downloadEntity.getProgress(),
+                        downloadEntity.getStart() + downloadEntity.getContentLength());
                 Logl.e("response获取成功：" + Thread.currentThread().getName() + "==" + response.body().contentLength());
                 inputStream = Objects.requireNonNull(response.body()).byteStream();
             }
@@ -53,21 +60,25 @@ public class DownloadCall extends NamedRunnable {
             File file = new File(task.getFileParent(), task.getFileName());
             randomAccessFile = new RandomAccessFile(file, "rwd");
             //seek从哪里开始
-            randomAccessFile.seek(downloadInfo.getStart() + downloadInfo.getProgress());
+            randomAccessFile.seek(downloadEntity.getStart() + downloadEntity.getProgress());
             Logl.e("seek成功：");
             int length;
-            int countDb = 0;
             byte[] bytes = new byte[10 * 1024];
+            long countD = 0;
             while ((length = inputStream.read(bytes)) != -1) {
+                if (canceled || finishing) {
+                    return;
+                }
                 //写入
+                countD++;
+                if (countD % 1024 == 0) {
+                    Logl.e("还在写：" + Thread.currentThread().getName() + "===" + countD);
+                }
                 randomAccessFile.write(bytes, 0, length);
                 task.dealProgress(length);
-                downloadInfo.addProgress(length);
-//                countDb++;
-//                if (countDb % 1024 == 0) {
-//                    saveToDb();
-//                }
+                downloadEntity.addProgress(length);
             }
+            finishing = true;
             Logl.e("写入完成: " + bytes.length);
             setFinished(true);
             Logl.e("isFinish(): " + isFinished());
@@ -98,18 +109,19 @@ public class DownloadCall extends NamedRunnable {
     private void saveToDb() {
         Log.e("TAG", "**************保存到数据库*******************");
         DownloadEntity entity = new DownloadEntity();
-        entity.setProgress(downloadInfo.getProgress());
+        entity.setProgress(downloadEntity.getProgress());
         entity.setUrl(task.getUrl());
-        entity.setStart(downloadInfo.getStart());
-        entity.setContentLength(downloadInfo.getContentLength());
+        entity.setStart(downloadEntity.getStart());
+        entity.setContentLength(downloadEntity.getContentLength());
         entity.setThreadId(index);
-        entity.setId(downloadInfo.getId());
+        entity.setId(downloadEntity.getId());
         //保存到数据库
-        Logl.e("当前插入：entity");
-        Logl.e("插入数据库:" + DownloadDaoFatory.getDao().insertOrUpdate(entity) + "");
+        Logl.e("saveToDb: " + entity);
+        Logl.e("插入数据库:" + DownloadDaoFatory.getDao().insertOrUpdate(downloadEntity) + "");
     }
 
-    public void cancel() {
+    public synchronized void cancel() {
+        canceled = true;
         if (getmCurrentThread() != null) {
             getmCurrentThread().interrupt();
         } else {

@@ -78,7 +78,7 @@ public class DefaultActivityController implements UiListener {
         if (activity != null && !activity.isFinishing()) {
             activity.setDownloadSuccess(path);
             InstallHelper.installWithNoActivity(activity, path);
-        }else{
+        } else {
             InstallHelper.installWithActivity(path);
         }
     }

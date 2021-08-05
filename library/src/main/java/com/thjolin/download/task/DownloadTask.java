@@ -173,6 +173,11 @@ public class DownloadTask {
             return this;
         }
 
+        public String getFinalFilePath() {
+           return FileHelper.getTargetFilePath(fileParent == null ?
+                            FileHelper.getDefaultSaveRootPath() : fileParent,
+                    fileName == null ? Utils.getFileNameFromUrl(url) : fileName);
+        }
 
         public DownloadTask build() {
             return new DownloadTask(url, newFileMd5, fileParent, fileName,
@@ -341,7 +346,7 @@ public class DownloadTask {
         }
         Logl.e("task cancel");
         downloadFinishSize = 0;
-        cancel(Status.CANEL);
+        cancel(Status.CANCEL);
     }
 
     public synchronized void cancel(String msg) {
@@ -386,7 +391,7 @@ public class DownloadTask {
                     .equals(FileHelper.fileMd5(FileHelper.getTargetFilePath(fileParent, fileName)))) {
                 // md5与预定值不一样
                 Logl.e("MD5不一致");
-                dealFailedListener(Status.MD5_UNMATCH);
+                dealFailedListener(Status.MD5_MISMATCH);
                 return;
             }
             dealRealSuccess();

@@ -11,6 +11,7 @@ import com.thjolin.download.listener.DownloadListenerWithSpeed;
 import com.thjolin.install.InstallHelper;
 import com.thjolin.ui.PDialog;
 import com.thjolin.update.Upgrader;
+import com.thjolin.update.bean.ApkPatchBean;
 import com.thjolin.update.bean.ApkUpdateBean;
 import com.thjolin.download.DownloadManager;
 import com.thjolin.download.database.DownloadProvider;
@@ -19,6 +20,8 @@ import com.thjolin.download.permission.MyPermissionActivity;
 import com.thjolin.download.permission.core.IPermission;
 import com.thjolin.download.permission.util.PermissionUtils;
 import com.thjolin.download.task.DownloadTask;
+import com.thjolin.update.configer.UpgraderConfiger;
+import com.thjolin.update.operate.listener.LifeCycleListener;
 import com.thjolin.util.Logl;
 
 import androidx.annotation.RequiresApi;
@@ -27,6 +30,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.os.Environment;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import java.io.File;
@@ -41,8 +45,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String url2 = "https://s9.pstatp.com/package/apk/lark/1583_40455/lark_feishu_website_organic_and_v1583_40455_7ea0_1626081724.apk?v=1626081732";
     private static final String url3 = "https://dcdown.pc6.com/apk/22c4185e163ff460e9557c1be753012f/2106/23/2113918.apk";
     private static final String url4 = "https://dldir1.qq.com/weixin/android/weixin807android1920_arm64.apk";
+    private static final String holeUrl = "https://obs-mips3-test.obs.cn-north-1.myhuaweicloud.com/bk_log/20190507/admin_taiyuan/compose.apk";
+    private static final String patchUrl = "https://obs-mips3-test.obs.cn-north-1.myhuaweicloud.com/bk_log/20190507/admin_taiyuan/patch.apk";
     String[] permissions = new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE};
     ImageView aaa;
+    // 安装message为空，安装前是否需要退出本应用，是否能安装本应用之外的应用。
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -75,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
 //    private void initCacheDir() {
-//        "/storage/emulated/0/Android/data/com.xinchao.elevator/cache/tp_read111.apk";
+//        "/storage/emulated/0/Android/data/com.xinchao.elevator/cache/tp_rea0d111.apk";
 //        if (getApplicationContext().getExternalCacheDir() != null && isExistSDCard()) {
 //            sCacheDir = getApplicationContext().getExternalCacheDir().toString();
 //        } else {
@@ -116,11 +123,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void testUpdate() {
         Logl.e("testUpdate");
+        EditText fab111 = findViewById(R.id.fab111);
         Upgrader.with().start(new ApkUpdateBean.Builder()
                 .newApkUrl(url)
                 .newApkVersionCode(2)
+                .addApkPatchBean(new ApkPatchBean(1, fab111.getText().toString()))
                 .build());
-
     }
 
     private void speedTest() {
@@ -302,14 +310,14 @@ public class MainActivity extends AppCompatActivity {
 
         DownloadManager.with().start(new DownloadTask.Builder().url(url)
                 .fileName("aaaaa11111")
-                .build(),null);
+                .build(), null);
         DownloadManager.with().start(new DownloadTask.Builder().url(url)
                 .fileName("aaaaa22222")
-                .build(),null);
+                .build(), null);
 
         DownloadManager.with().start(new DownloadTask.Builder().url(url3)
                 .fileName("aaaaa222221111111")
-                .build(),null);
+                .build(), null);
     }
 
     public void onStop(View view) {

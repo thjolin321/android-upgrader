@@ -8,6 +8,8 @@ import android.net.Uri;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.thjolin.ui.PDialog;
+
 import java.util.List;
 
 /**
@@ -25,18 +27,20 @@ public class GoMarketUtil {
 
     //直接跳转不判断是否存在市场应用
     public static void start(Context paramContext, String paramString) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(paramContext);
-        dialogBuilder.setTitle("即将跳转应用市场下载");
-        dialogBuilder.setNegativeButton("确定", new DialogInterface.OnClickListener() {
+        PDialog pDialog = new PDialog(paramContext);
+        pDialog.setOnDialogClick(new PDialog.OnDialogClick() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onCancel() {
+            }
+            @Override
+            public void onSure() {
                 Uri localUri = Uri.parse(paramString);
                 Intent localIntent = new Intent("android.intent.action.VIEW", localUri);
                 localIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 paramContext.startActivity(localIntent);
             }
         });
-        dialogBuilder.show();
+        pDialog.show();
     }
 
     public static boolean judge(Context paramContext, Intent paramIntent) {

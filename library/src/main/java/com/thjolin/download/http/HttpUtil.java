@@ -30,7 +30,7 @@ public class HttpUtil {
         return SingletonHolder.INSTANCE;
     }
 
-    public Response asyncCall(String url) throws IOException {
+    public Response asyncCall(String url) throws Exception {
         Request request = new Request.Builder()
                 .url(url)
                 .build();

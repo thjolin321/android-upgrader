@@ -2,6 +2,7 @@ package com.thjolin.update.check;
 
 import android.text.TextUtils;
 
+import com.thjolin.compose.ComposeTask;
 import com.thjolin.update.bean.ApkPatchBean;
 import com.thjolin.update.bean.ApkUpdateBean;
 import com.thjolin.update.operate.flow.WorkFlow;
@@ -38,6 +39,7 @@ public class ChekUpdateImpl implements CheckUpdateInterface {
                     }
                     builder.url(apkPatchBean.getPatchUrl());
                     builder.newFileMd5(apkPatchBean.getPatchMd5());
+                    workFlow.setComposeTask(new ComposeTask(builder.getFinalFilePath(), apkUpdateBean.getNewApkMd5()));
                     return 1;
                 }
             }

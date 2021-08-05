@@ -49,8 +49,16 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="110dp"
-        android:text="更新后STOP"
+        android:text="我T,M增量更新了。。。。哈哈哈"
         android:onClick="onStop"
         app:srcCompat="@android:drawable/ic_dialog_email" />
+
+    <EditText
+        android:id="@+id/fab111"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_gravity="bottom"
+        android:text="1"
+        />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

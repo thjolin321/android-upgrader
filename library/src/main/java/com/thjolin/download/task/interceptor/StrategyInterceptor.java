@@ -36,7 +36,7 @@ public class StrategyInterceptor extends AbstractIntercepter implements TaskInte
         return task;
     }
 
-    private void countCoreBlockSize(DownloadTask task) {
+    private void countCoreBlockSize(DownloadTask  task) {
         if (task.getBlockSize() != 0) {
             return;
         }

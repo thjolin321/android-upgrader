@@ -89,6 +89,7 @@ public class UpgraderController {
         }
         dealLifeCycle(CHECK);
         int checkResult = checkUpdateInterface.checkUpdateByHistoryVersions(apkUpdateBean);
+        Logl.e("checkResult: " + checkResult);
         if (checkResult < 1) {
             dealLifeCycle(NO_NEED_UPGRADE);
             return;
@@ -134,6 +135,7 @@ public class UpgraderController {
         DownloadManager.with().start(taskBuilder.build(), new DownloadListener() {
             @Override
             public void success(String path) {
+                Logl.e("下载成功: " + path);
                 if (flow.getComposeTask() != null) {
                     dealLifeCycle(COMPOSE);
                     flow.getComposeTask().setPatchPath(path);
@@ -172,9 +174,12 @@ public class UpgraderController {
                 // 判断具体失败原因，做相应的处理
                 if (checkUiListener()) {
                     uiListener.failed(msg);
+                    dealLifeCycle(UPGRADE_ERROR);
                 }
                 if (flow.getComposeTask() != null) {
                     apkUpdateBean.setList(null);
+                    flow.setComposeTask(null);
+
                     start(apkUpdateBean);
                 } else {
                     dealLifeCycle(CHECK);

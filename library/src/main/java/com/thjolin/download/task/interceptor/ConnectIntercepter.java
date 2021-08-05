@@ -20,11 +20,17 @@ public class ConnectIntercepter extends AbstractIntercepter implements TaskInter
         Response response = null;
         try {
             response = DownloadManager.with().getHttpUtil().asyncCall(task.getUrl());
-        } catch (IOException e) {
+        } catch (Exception e) {
+            Logl.e("ConnectIntercepter: 链接连接问题：" + e.getMessage());
             task.setStatus(Status.ERRO);
             e.printStackTrace();
         }
-        assert response != null;
+        if (response == null) {
+            Logl.e("链接出错，response为空");
+            task.setStatus(Status.ERRO);
+            task.getStatus().setMsg(Status.CHECK_URL);
+            return task;
+        }
         long totalSize = Objects.requireNonNull(response.body()).contentLength();
         task.setBody(Objects.requireNonNull(response.body()).byteStream());
         Logl.e("返回totalSize: " + totalSize);

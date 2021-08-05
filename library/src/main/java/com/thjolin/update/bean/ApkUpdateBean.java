@@ -25,7 +25,7 @@ public class ApkUpdateBean {
         this.newApkUrl = newApkUrl;
         this.newApkMd5 = newApkMd5;
         this.newApkVersionCode = newApkVersionCode;
-        this.currentApkVersionCode = getCurrentApkVersionCode();
+        this.currentApkVersionCode = getAppVersion();
     }
 
     public static class Builder {
@@ -68,8 +68,8 @@ public class ApkUpdateBean {
      *
      * @return
      */
-    public static long getAppVersion() {
-        long version = 0;
+    public static int getAppVersion() {
+        int version = 0;
         PackageManager packageManager = DownloadProvider.context.getPackageManager();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
             try {
@@ -81,7 +81,7 @@ public class ApkUpdateBean {
         } else {
             try {
                 PackageInfo packageInfo = packageManager.getPackageInfo(DownloadProvider.context.getPackageName(), 0);
-                version = packageInfo.getLongVersionCode();
+                version = (int) packageInfo.getLongVersionCode();
             } catch (Exception e) {
                 e.printStackTrace();
             }

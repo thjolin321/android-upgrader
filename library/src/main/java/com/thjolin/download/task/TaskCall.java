@@ -54,7 +54,6 @@ public class TaskCall extends NamedRunnable {
         }
     }
 
-
     private boolean checkStatus() {
         if (task.getStatus().getCode() == -1) {
             task.dealFailedListener(task.getStatus().getMsg());

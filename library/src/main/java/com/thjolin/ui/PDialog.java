@@ -22,7 +22,7 @@ public class PDialog extends Dialog implements View.OnClickListener {
 
     private OnDialogClick onDialogClick;
     private ProgressBar bar;
-    private TextView tvProgress, tvSpeed;
+    private TextView tvProgress, tvSpeed, tvTitle;
     private View mView;
     private View llProgress;
     private boolean needCompose;
@@ -40,6 +40,7 @@ public class PDialog extends Dialog implements View.OnClickListener {
         mView.findViewById(R.id.bt_sure).setOnClickListener(this);
         bar = mView.findViewById(R.id.progress_bar);
         tvProgress = mView.findViewById(R.id.tv_progress);
+        tvTitle = mView.findViewById(R.id.dialog_title);
         llProgress = mView.findViewById(R.id.ll_progress);
         tvSpeed = mView.findViewById(R.id.tv_speed);
         super.setContentView(mView);
@@ -110,6 +111,10 @@ public class PDialog extends Dialog implements View.OnClickListener {
     public void setNeedCompose() {
         bar.setMax(110);
         needCompose = true;
+    }
+
+    public void showGotoMarketTitle(){
+        tvTitle.setText("发现新版本，请前往应用市场下载安装");
     }
 
 

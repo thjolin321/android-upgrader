@@ -152,8 +152,6 @@ public class FileHelper {
     public static boolean copyFile(String oldPath, String newPath) {
         boolean flag = false;
         try {
-            Log.e("Huan", "old path ==" + oldPath);
-            Log.e("Huan", "new path ==" + newPath);
             int bytesum = 0;
             int byteread = 0;
             File oldfile = new File(oldPath);

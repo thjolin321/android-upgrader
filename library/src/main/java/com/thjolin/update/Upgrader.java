@@ -39,9 +39,10 @@ public class Upgrader {
         controller.start(apkUpdateBean);
     }
 
-    public void setConfiger(UpgraderConfiger configer) {
+    public Upgrader setConfiger(UpgraderConfiger configer) {
         controller.setConfiger(configer);
         controller.setLifeCycleListener(configer.lifeCycleListener);
+        return this;
     }
 
     public void destroy() {

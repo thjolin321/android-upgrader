@@ -13,7 +13,6 @@ import com.thjolin.util.NamedRunnable;
 import java.io.File;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.nio.channels.FileLock;
 import java.util.Objects;
 
 import okhttp3.Response;
@@ -92,7 +91,7 @@ public class DownloadCall extends NamedRunnable {
                 Utils.close(randomAccessFile);
                 execute();
             } else {
-                task.cancel(Status.DOWUNLOAD_ERROR);
+                task.cancel(Status.DOWNLOAD_ERROR);
             }
         } finally {
             Utils.close(inputStream);

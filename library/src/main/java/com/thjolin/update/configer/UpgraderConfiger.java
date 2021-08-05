@@ -151,6 +151,11 @@ public class UpgraderConfiger {
             return this;
         }
 
+        public Builder lifeCycleListener(LifeCycleListener lifeCycleListener) {
+            this.lifeCycleListener = lifeCycleListener;
+            return this;
+        }
+
         public UpgraderConfiger build() {
             return new UpgraderConfiger(showDownladProgress,
                     silent, forceUpdate, needNotifycation, uiListener,

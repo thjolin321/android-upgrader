@@ -8,7 +8,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInstaller;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
@@ -16,8 +15,8 @@ import androidx.core.content.FileProvider;
 
 import com.thjolin.download.database.DownloadProvider;
 import com.thjolin.download.permission.MyPermissionActivity;
-import com.thjolin.util.Utils;
-import com.thjolin.util.Logl;
+import com.thjolin.download.util.Utils;
+import com.thjolin.download.util.Logl;
 
 import java.io.File;
 import java.io.FileInputStream;

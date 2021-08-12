@@ -15,7 +15,7 @@ import com.thjolin.install.InstallApkActivity;
 import com.thjolin.install.InstallHelper;
 import com.thjolin.update.R;
 import com.thjolin.update.operate.listener.UiListener;
-import com.thjolin.util.Logl;
+import com.thjolin.download.util.Logl;
 
 /**
  * Created by tanghao on 2021/7/1

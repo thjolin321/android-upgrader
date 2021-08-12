@@ -5,51 +5,45 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.facebook.stetho.Stetho;
 import com.thjolin.download.dispatcher.TaskDispatcher;
 import com.thjolin.download.listener.DownloadListenerWithSpeed;
+import com.thjolin.download.listener.MultiDownloadListener;
 import com.thjolin.install.InstallHelper;
 import com.thjolin.ui.PDialog;
 import com.thjolin.update.Upgrader;
 import com.thjolin.update.bean.ApkPatchBean;
 import com.thjolin.update.bean.ApkUpdateBean;
-import com.thjolin.download.DownloadManager;
+import com.thjolin.download.UuDownloader;
 import com.thjolin.download.database.DownloadProvider;
 import com.thjolin.download.listener.DownloadListener;
 import com.thjolin.download.permission.MyPermissionActivity;
 import com.thjolin.download.permission.core.IPermission;
 import com.thjolin.download.permission.util.PermissionUtils;
 import com.thjolin.download.task.DownloadTask;
-import com.thjolin.update.configer.UpgraderConfiger;
-import com.thjolin.update.operate.listener.LifeCycleListener;
-import com.thjolin.util.Logl;
+import com.thjolin.download.util.Logl;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.os.Environment;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import java.io.File;
-
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String url = "https://s9.pstatp.com/package/apk/aweme/1015_160601/aweme_douyin_web1_v1015_160601_6d8a_1624978529.apk?v=1624978540";
     private static final String url1 = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.article.pchome.net%2F00%2F37%2F68%2F81%2Fpic_lib%2Fs960x639%2F12325295252018x49zdm09qs960x639.jpg&refer=http%3A%2F%2Fimg.article.pchome.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1627633198&t=29a8b1abafead8cf5368c6695a331d77";
     private static final String url2 = "https://s9.pstatp.com/package/apk/lark/1583_40455/lark_feishu_website_organic_and_v1583_40455_7ea0_1626081724.apk?v=1626081732";
-    private static final String url3 = "https://dcdown.pc6.com/apk/22c4185e163ff460e9557c1be753012f/2106/23/2113918.apk";
-    private static final String url4 = "https://dldir1.qq.com/weixin/android/weixin807android1920_arm64.apk";
-    private static final String holeUrl = "https://obs-mips3-test.obs.cn-north-1.myhuaweicloud.com/bk_log/20190507/admin_taiyuan/compose.apk";
-    private static final String patchUrl = "https://obs-mips3-test.obs.cn-north-1.myhuaweicloud.com/bk_log/20190507/admin_taiyuan/patch.apk";
+    private static final String url3 = "https://dldir1.qq.com/weixin/android/weixin807android1920_arm64.apk";
     String[] permissions = new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE};
     ImageView aaa;
-    // 安装message为空，安装前是否需要退出本应用，是否能安装本应用之外的应用。
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -59,37 +53,45 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         aaa = findViewById(R.id.aaa);
-        Stetho.initializeWithDefaults(this);
+//        Stetho.initializeWithDefaults(this);
 //        startActivity(new Intent(this, LoginActivity.class));
     }
 
     DownloadTask task;
 
     public void onStart(View view) {
-//        toInstallPermissionSettingIntent();
-        testUpdate();
+        Logl.e("onStart");
+//        testUpdate();
 //        testInstall();
 //        testDownload();
 //        speedTest();
 //        testPermission();
+        testMultiDownload();
     }
 
-//    @RequiresApi(api = Build.VERSION_CODES.O)
-//    private void toInstallPermissionSettingIntent() {
-//        Uri packageURI = Uri.parse("package:" + getPackageName());
-//        Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI);
-//        startActivityForResult(intent, INSTALL_PERMISS_CODE);
-//    }
+    private void testMultiDownload() {
+        List<String> list = new ArrayList<>();
+        list.add(url);
+        list.add(url1);
+        list.add(url2);
+        list.add(url3);
+        UuDownloader.with().start(list, new MultiDownloadListener() {
+            @Override
+            public void onFinish() {
+                Logl.e("onFinish:");
+            }
 
-//    private void initCacheDir() {
-//        "/storage/emulated/0/Android/data/com.xinchao.elevator/cache/tp_rea0d111.apk";
-//        if (getApplicationContext().getExternalCacheDir() != null && isExistSDCard()) {
-//            sCacheDir = getApplicationContext().getExternalCacheDir().toString();
-//        } else {
-//            sCacheDir = getApplicationContext().getCacheDir().toString();
-//        }
-//    }
+            @Override
+            public void onSuccess(String url, String path) {
+                Logl.e("onSuccess: " + url + "  path  " + path);
+            }
 
+            @Override
+            public void onFailed(String url) {
+                Logl.e("onFailed: " + url);
+            }
+        });
+    }
 
     private void testInstall() {
 //        "/storage/emulated/0/Android/data/com.xinchao.elevator/cache/tp_read111.apk";
@@ -134,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
     private void speedTest() {
         PDialog progressDialog = new PDialog(this);
         DownloadTask.Builder configer = new DownloadTask.Builder();
-        configer.url(url4)
+        configer.url(url3)
                 .blockSize(10)
                 .newFileMd5("df2f045dfa854d8461d9cefe08b813c8")
                 .fileName("a1111111.apk")
@@ -142,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 .needSpeed(true)
                 .needProgress(true);
         task = configer.build();
-        DownloadManager.with().start(task, new DownloadListenerWithSpeed() {
+        UuDownloader.with().start(task, new DownloadListenerWithSpeed() {
 
             @Override
             public void speed(String speed) {
@@ -194,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                 .forceRepeat(false)
                 .needProgress(true);
         task = configer.build();
-        DownloadManager.with().start(task, new DownloadListener() {
+        UuDownloader.with().start(task, new DownloadListener() {
             @Override
             public void success(String path) {
                 Logl.e("success: " + path);
@@ -232,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        DownloadManager.with().start(new DownloadTask.Builder().url(url1).build(), new DownloadListener() {
+        UuDownloader.with().start(new DownloadTask.Builder().url(url1).build(), new DownloadListener() {
             @Override
             public void success(String path) {
                 Logl.e("success: " + path);
@@ -256,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
                 Logl.e("failed: " + meg);
             }
         });
-        DownloadManager.with().start(new DownloadTask.Builder().url("https://dl.softmgr.qq.com/original/Audio/QQMusic_Setup_1733.4793_QMgr.exe")
+        UuDownloader.with().start(new DownloadTask.Builder().url("https://dl.softmgr.qq.com/original/Audio/QQMusic_Setup_1733.4793_QMgr.exe")
                 .build(), new DownloadListener() {
             @Override
             public void success(String path) {
@@ -282,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        DownloadManager.with().start(new DownloadTask.Builder().url(url2)
+        UuDownloader.with().start(new DownloadTask.Builder().url(url2)
                 .build(), new DownloadListener() {
             @Override
             public void success(String path) {
@@ -308,14 +310,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        DownloadManager.with().start(new DownloadTask.Builder().url(url)
+        UuDownloader.with().start(new DownloadTask.Builder().url(url)
                 .fileName("aaaaa11111")
                 .build(), null);
-        DownloadManager.with().start(new DownloadTask.Builder().url(url)
+        UuDownloader.with().start(new DownloadTask.Builder().url(url)
                 .fileName("aaaaa22222")
                 .build(), null);
 
-        DownloadManager.with().start(new DownloadTask.Builder().url(url3)
+        UuDownloader.with().start(new DownloadTask.Builder().url(url3)
                 .fileName("aaaaa222221111111")
                 .build(), null);
     }

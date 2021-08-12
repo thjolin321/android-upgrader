@@ -28,9 +28,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:text="START"
         android:onClick="onStart"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        android:text="START" />
 
     <ImageView
         android:id="@+id/aaa"
@@ -38,10 +37,9 @@
         android:layout_height="200dp"
         android:layout_margin="@dimen/fab_margin"
         android:layout_marginTop="300dp"
-        android:onClick="onStart"
         android:layout_gravity="bottom"
         android:text="START"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        />
 
     <Button
         android:id="@+id/fab1"
@@ -49,7 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="110dp"
-        android:text="我T,M增量更新了。。。。哈哈哈"
+        android:text="onStop"
         android:onClick="onStop"
         app:srcCompat="@android:drawable/ic_dialog_email" />
 

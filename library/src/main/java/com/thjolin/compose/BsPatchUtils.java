@@ -1,6 +1,6 @@
 package com.thjolin.compose;
 
-import com.thjolin.util.Logl;
+import com.thjolin.download.util.Logl;
 
 public class BsPatchUtils {
 

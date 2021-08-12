@@ -3,15 +3,6 @@
     package="com.thjolin.update">
 
     <application>
-        <provider
-            android:name="com.thjolin.download.database.DownloadProvider"
-            android:authorities="${applicationId}.com.example.download"
-            android:exported="false" />
-
-        <activity
-            android:name="com.thjolin.download.permission.MyPermissionActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-
         <activity
             android:name="com.thjolin.install.InstallApkActivity"
             android:excludeFromRecents="true"

@@ -7,7 +7,7 @@ import com.thjolin.ui.DefaultActivityController;
 import com.thjolin.update.operate.listener.ForceExitListener;
 import com.thjolin.update.operate.listener.LifeCycleListener;
 import com.thjolin.update.operate.listener.UiListener;
-import com.thjolin.util.Logl;
+import com.thjolin.download.util.Logl;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -19,23 +19,49 @@ import okhttp3.OkHttpClient;
  */
 public class UpgraderConfiger {
 
-    public final static int PATCH_UPDATE = 1;
-    public final static int COMPLETE_UPDATE = 2;
-    public final static int MARKET_UPDATE = 3;
-    public final static int HOT_UPDATE = 4;
+    public final static int PATCH_UPDATE = 1; // 增量更新
+    public final static int COMPLETE_UPDATE = 2;  // 完整apk更新
+    public final static int MARKET_UPDATE = 3;  // 跳转应用市场
 
-    public boolean showDownladProgress;
+    /**
+     * 是否静默下载
+     */
     public boolean silent;
+    /**
+     * 是否显示下载进度
+     */
+    public boolean showDownladProgress;
+    /**
+     * 是否强制更新，可配合 ForceExitListener 使用
+     */
     public boolean forceUpdate;
+    /**
+     * 是否显示通知栏
+     */
     public boolean needNotification;
+    /**
+     * 更新生命周期回调
+     */
     public LifeCycleListener lifeCycleListener;
+    /**
+     * 下载过程UI回调，可自定义UI。本框架也会默认UI，可作参考
+     */
     public UiListener uiListener;
+    /**
+     * 强制更新，点击关闭时的回调
+     */
     public ForceExitListener forceExitListener;
+    /**
+     * 透传到下载框架Uudownloader的okHttpClient
+     */
     public OkHttpClient downloadOkHttpClient;
+    /**
+     * 更新方式
+     */
     public int updateMethod; // 0 for no value,-1 for no need update, 1、for patch,
-    // 2 for completeApk, 3 for market, 4 for 插件化更新, -2 for wrong type
+    // 2 for completeApk, 3 for market,  -2 for wrong type
 
-    @IntDef({PATCH_UPDATE, COMPLETE_UPDATE, MARKET_UPDATE, HOT_UPDATE})
+    @IntDef({PATCH_UPDATE, COMPLETE_UPDATE, MARKET_UPDATE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface UpdateMethod {
     }

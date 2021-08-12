@@ -1,6 +1,5 @@
 package com.thjolin.ui;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,8 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.thjolin.update.R;
-import com.thjolin.util.Logl;
-import com.thjolin.util.Utils;
+import com.thjolin.download.util.Logl;
+import com.thjolin.download.util.Utils;
 
 /**
  * Created by tanghao on 2021/7/12
@@ -85,7 +84,7 @@ public class PDialog extends Dialog implements View.OnClickListener {
             return;
         }
         bar.setProgress(pro);
-        tvProgress.setText(pro + "%");
+        tvProgress.setText(Math.min(pro, 100) + "%");
         if (needCompose && pro == 100) {
             tvProgress.setText("合成中");
         }
@@ -113,7 +112,7 @@ public class PDialog extends Dialog implements View.OnClickListener {
         needCompose = true;
     }
 
-    public void showGotoMarketTitle(){
+    public void showGotoMarketTitle() {
         tvTitle.setText("发现新版本，请前往应用市场下载安装");
     }
 

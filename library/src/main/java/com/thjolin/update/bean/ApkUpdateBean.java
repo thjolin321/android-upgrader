@@ -10,14 +10,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * apk更新类
  * Created by tanghao on 2021/5/24
  */
 public class ApkUpdateBean {
-
+    /**
+     * 新版本apk完整下载地址
+     */
     private String newApkUrl;
+    /**
+     * 新版本apk md5
+     */
     private String newApkMd5;
+    /**
+     * 新版本apk 版本号
+     */
     private int newApkVersionCode;
+    /**
+     * 当前版本apk 版本号，框架可自动获取
+     */
     private int currentApkVersionCode;
+    /**
+     * 历史增量更新bean
+     */
     private List<ApkPatchBean> list;
 
     private ApkUpdateBean(List<ApkPatchBean> list, String newApkUrl, String newApkMd5, int newApkVersionCode) {

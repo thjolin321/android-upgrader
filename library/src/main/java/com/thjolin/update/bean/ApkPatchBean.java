@@ -1,12 +1,21 @@
 package com.thjolin.update.bean;
 
 /**
+ * 增量更新实体类
  * Created by tanghao on 2021/5/24
  */
 public class ApkPatchBean {
-
+    /**
+     * 增量更新文件对应的版本号
+     */
     private int versionCode;
+    /**
+     * 增量更新完整文件下载地址
+     */
     private String patchUrl;
+    /**
+     * 增量更新文件md5值
+     */
     private String patchMd5;
 
     public ApkPatchBean(int versionCode, String patchUrl) {

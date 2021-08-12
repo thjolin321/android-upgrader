@@ -3,7 +3,7 @@ package com.thjolin.update.controller;
 import androidx.annotation.NonNull;
 
 import com.thjolin.compose.PatchComposeHelper;
-import com.thjolin.download.DownloadManager;
+import com.thjolin.download.UuDownloader;
 import com.thjolin.download.database.DownloadProvider;
 import com.thjolin.download.listener.DownloadListener;
 import com.thjolin.download.task.DownloadTask;
@@ -17,7 +17,7 @@ import com.thjolin.update.configer.UpgraderConfiger;
 import com.thjolin.update.operate.flow.WorkFlow;
 import com.thjolin.update.operate.listener.LifeCycleListener;
 import com.thjolin.update.operate.listener.UiListener;
-import com.thjolin.util.Logl;
+import com.thjolin.download.util.Logl;
 
 import static com.thjolin.update.operate.listener.LifeCycleListener.CHECK;
 import static com.thjolin.update.operate.listener.LifeCycleListener.COMPOSE;
@@ -132,7 +132,7 @@ public class UpgraderController {
         dealLifeCycle(DOWNLOAD);
         DownloadTask.Builder taskBuilder = flow.getDownloadTask();
         taskBuilder.needProgress(configer.showDownladProgress);
-        DownloadManager.with().start(taskBuilder.build(), new DownloadListener() {
+        UuDownloader.with().start(taskBuilder.build(), new DownloadListener() {
             @Override
             public void success(String path) {
                 Logl.e("下载成功: " + path);
@@ -195,7 +195,7 @@ public class UpgraderController {
 
     public void destroy() {
         isDestroyed = true;
-        DownloadManager.with().destroy();
+        UuDownloader.with().destroy();
     }
 
 }

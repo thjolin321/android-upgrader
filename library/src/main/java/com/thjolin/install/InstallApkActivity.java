@@ -20,8 +20,8 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.thjolin.ui.DefaultActivityController;
 import com.thjolin.update.R;
-import com.thjolin.util.Logl;
-import com.thjolin.util.Utils;
+import com.thjolin.download.util.Logl;
+import com.thjolin.download.util.Utils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class InstallApkActivity extends FragmentActivity implements OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (!getIntent().getBooleanExtra("needUi", false)) {
-            setContentView(R.layout.activity_tang_permission);
+            setContentView(R.layout.activity_transparent_layout);
             startInstall(getIntent().getStringExtra("apkPath"));
         } else {
             setContentView(R.layout.progress_tang_update);
@@ -215,7 +215,7 @@ public class InstallApkActivity extends FragmentActivity implements OnClickListe
             return;
         }
         bar.setProgress(pro);
-        tvProgress.setText(pro + "%");
+        tvProgress.setText(Math.min(pro, 100) + "%");
         if (needCompose && pro == 100) {
             tvProgress.setText("合成中");
         }

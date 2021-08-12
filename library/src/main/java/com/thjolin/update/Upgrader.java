@@ -8,13 +8,13 @@ import com.thjolin.update.bean.ApkUpdateBean;
 import com.thjolin.update.configer.UpgraderConfiger;
 import com.thjolin.update.controller.UpgraderController;
 import com.thjolin.download.task.DownloadTask;
+import com.thjolin.download.util.Logl;
 
 /**
  * Created by tanghao on 2021/5/24
  */
 public class Upgrader {
 
-    private static boolean DEBUG = true;
     private UpgraderController controller;
 
     private Upgrader() {
@@ -43,6 +43,10 @@ public class Upgrader {
         controller.setConfiger(configer);
         controller.setLifeCycleListener(configer.lifeCycleListener);
         return this;
+    }
+
+    public void setDebug(boolean debug) {
+        Logl.setDEBUG(debug);
     }
 
     public void destroy() {

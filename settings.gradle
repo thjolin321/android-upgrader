@@ -1,6 +1,4 @@
-include ':download'
 include ':library'
-include ':app:mylibrary'
 include ':app'
 rootProject.name = "UpdateFromPatch"
 include ':uudownload'

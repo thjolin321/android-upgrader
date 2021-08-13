@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
 }
+group('com.github.thjolin321')
 
 android {
     compileSdkVersion 30

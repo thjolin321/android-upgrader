@@ -1,6 +1,6 @@
 package com.thjolin.download.task;
 
-import com.thjolin.download.task.interceptor.ConnectIntercepter;
+import com.thjolin.download.task.interceptor.ConnectInterceptor;
 import com.thjolin.download.task.interceptor.DatabaseInterceptor;
 import com.thjolin.download.task.interceptor.DownloadInterceptor;
 import com.thjolin.download.task.interceptor.FileInterceptor;
@@ -21,7 +21,7 @@ public class TaskCall extends NamedRunnable {
         super(downloadTask.url);
         this.task = downloadTask;
         taskInterceptor = new FileInterceptor();
-        taskInterceptor.add(new ConnectIntercepter());
+        taskInterceptor.add(new ConnectInterceptor());
         taskInterceptor.add(new DatabaseInterceptor());
         taskInterceptor.add(new StrategyInterceptor());
         taskInterceptor.add(new DownloadInterceptor());

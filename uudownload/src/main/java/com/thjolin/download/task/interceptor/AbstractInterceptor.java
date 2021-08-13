@@ -3,7 +3,7 @@ package com.thjolin.download.task.interceptor;
 /**
  * Created by tanghao on 2021/6/1
  */
-public abstract class AbstractIntercepter implements TaskInterceptor {
+public abstract class AbstractInterceptor implements TaskInterceptor {
 
     public TaskInterceptor taskInterceptor;
     public TaskInterceptor last;

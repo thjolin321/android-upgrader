@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by tanghao on 2021/6/1
  */
-public class DatabaseInterceptor extends AbstractIntercepter implements TaskInterceptor {
+public class DatabaseInterceptor extends AbstractInterceptor implements TaskInterceptor {
     @Override
     public DownloadTask operate(DownloadTask task) {
         // 文件缓存已不存在

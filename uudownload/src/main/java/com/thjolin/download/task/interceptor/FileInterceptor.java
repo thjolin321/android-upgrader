@@ -18,7 +18,7 @@ import java.io.File;
 /**
  * Created by tanghao on 2021/5/27
  */
-public class FileInterceptor extends AbstractIntercepter implements TaskInterceptor {
+public class FileInterceptor extends AbstractInterceptor implements TaskInterceptor {
 
     @Override
     public DownloadTask operate(DownloadTask task) {

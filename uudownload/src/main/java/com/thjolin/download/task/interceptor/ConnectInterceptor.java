@@ -12,7 +12,7 @@ import okhttp3.Response;
 /**
  * Created by tanghao on 2021/5/31
  */
-public class ConnectIntercepter extends AbstractIntercepter implements TaskInterceptor {
+public class ConnectInterceptor extends AbstractInterceptor implements TaskInterceptor {
 
     @Override
     public DownloadTask operate(DownloadTask task) {

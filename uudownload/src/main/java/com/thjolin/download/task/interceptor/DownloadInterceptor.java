@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by tanghao on 2021/6/1
  */
-public class DownloadInterceptor extends AbstractIntercepter implements TaskInterceptor {
+public class DownloadInterceptor extends AbstractInterceptor implements TaskInterceptor {
     @Override
     public DownloadTask operate(DownloadTask task) {
         Logl.e("开始执行DownloadInterceptor");

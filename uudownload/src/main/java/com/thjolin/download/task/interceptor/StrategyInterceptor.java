@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by tanghao on 2021/6/1
  */
-public class StrategyInterceptor extends AbstractIntercepter implements TaskInterceptor {
+public class StrategyInterceptor extends AbstractInterceptor implements TaskInterceptor {
 
     // 1 connection: [0, 2MB)
     private static final long ONE_CORE_SIZE_LIMIT = 2 * 1024 * 1024; // 2MiB

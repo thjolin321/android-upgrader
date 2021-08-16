@@ -11,7 +11,7 @@
         <item name="android:backgroundDimAmount">0.6</item>
     </style>
 
-    <style name="DialogActivity" parent="@style/Theme.AppCompat.Dialog">
+    <style name="UuDialogActivity" parent="@style/Theme.AppCompat.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item><!--背景透明-->
         <item name="android:backgroundDimAmount">0.5</item><!--透明度 0.0f到1.0f。1.0完全不透明，0.0f完全透明-->
     </style>

@@ -6,7 +6,7 @@
         <activity
             android:name="com.thjolin.install.InstallApkActivity"
             android:excludeFromRecents="true"
-            android:theme="@style/DialogActivity"
+            android:theme="@style/UuDialogActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action

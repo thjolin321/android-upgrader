@@ -151,7 +151,7 @@ public class DefaultActivityController implements UiListener {
         if (mChannel != null) {
             return;
         }
-        mChannel = new NotificationChannel(UPGRADE_CHANNEL, activity.getString(R.string.download_name), NotificationManager.IMPORTANCE_DEFAULT);
+        mChannel = new NotificationChannel(UPGRADE_CHANNEL, activity.getString(R.string.uu_download_name), NotificationManager.IMPORTANCE_DEFAULT);
         // 开启指示灯，如果设备有的话。
         mChannel.enableLights(false);
         // 开启震动

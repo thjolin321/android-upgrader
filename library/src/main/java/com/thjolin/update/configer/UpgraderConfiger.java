@@ -22,7 +22,6 @@ public class UpgraderConfiger {
     public final static int PATCH_UPDATE = 1; // 增量更新
     public final static int COMPLETE_UPDATE = 2;  // 完整apk更新
     public final static int MARKET_UPDATE = 3;  // 跳转应用市场
-
     /**
      * 是否静默下载
      */

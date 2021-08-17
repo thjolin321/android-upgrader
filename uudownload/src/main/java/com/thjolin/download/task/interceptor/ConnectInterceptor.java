@@ -18,6 +18,7 @@ public class ConnectInterceptor extends AbstractInterceptor implements TaskInter
     public DownloadTask operate(DownloadTask task) {
         Response response = null;
         try {
+            Logl.e("ConnectInterceptor下载链接: " + task.getUrl());
             response = UuDownloader.with().getHttpUtil().asyncCall(task.getUrl());
         } catch (Exception e) {
             Logl.e("ConnectIntercepter: 链接连接问题：" + e.getMessage());

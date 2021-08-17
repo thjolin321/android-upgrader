@@ -80,7 +80,7 @@
         android:textColor="#333333"
         android:visibility="visible"
         android:layout_marginRight="32dp"
-        android:text="aaa"
+        android:text=""
         android:textSize="14sp" />
 
     <View

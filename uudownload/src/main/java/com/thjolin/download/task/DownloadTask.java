@@ -145,7 +145,7 @@ public class DownloadTask {
             long sofar = sofarBytes.addAndGet(progress);
             int finalProgress = (int) (sofar * 100 / totalSize);
             if (isNeedSpeed()) {
-                speedAssist.downloading(progress);
+                speedAssist.uu_downloading(progress);
             }
             if (finalProgress <= tempProgress.get()) {
                 return;
@@ -396,6 +396,7 @@ public class DownloadTask {
     public void restart() {
         Logl.e("restart");
         setStatus(Status.START);
+        setForceRepeat(true);
         TaskDispatcher.getInstance().start(this, downloadListener);
     }
 

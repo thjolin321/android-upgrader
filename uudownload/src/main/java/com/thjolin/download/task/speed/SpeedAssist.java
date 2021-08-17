@@ -45,7 +45,7 @@ public class SpeedAssist {
         return SystemClock.uptimeMillis();
     }
 
-    public synchronized void downloading(long increaseBytes) {
+    public synchronized void uu_downloading(long increaseBytes) {
         if (timestamp == 0) {
             this.timestamp = nowMillis();
             this.beginTimestamp = timestamp;

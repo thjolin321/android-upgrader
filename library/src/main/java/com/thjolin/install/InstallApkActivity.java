@@ -188,7 +188,7 @@ public class InstallApkActivity extends FragmentActivity implements OnClickListe
         if (id == R.id.bt_sure) {
             if (onDialogClick != null) {
                 onDialogClick.onSure();
-                ((TextView) findViewById(R.id.bt_sure)).setText(R.string.downloading);
+                ((TextView) findViewById(R.id.bt_sure)).setText(R.string.uu_downloading);
                 if (getIntent().getBooleanExtra("showNotification", false)) {
                     finish();
                 }
@@ -223,12 +223,12 @@ public class InstallApkActivity extends FragmentActivity implements OnClickListe
 
     public void setForceUpdate() {
         findViewById(R.id.bt_close).setVisibility(View.INVISIBLE);
-        ((TextView) findViewById(R.id.bt_cancel)).setText(R.string.app_exit);
+        ((TextView) findViewById(R.id.bt_cancel)).setText(R.string.uu_app_exit);
     }
 
     public void setNoNeedProgress() {
         findViewById(R.id.ll_progress).setVisibility(View.GONE);
-        ((TextView) findViewById(R.id.bt_sure)).setText(R.string.app_download);
+        ((TextView) findViewById(R.id.bt_sure)).setText(R.string.uu_app_download);
     }
 
     public void setNeedCompose() {
@@ -243,14 +243,14 @@ public class InstallApkActivity extends FragmentActivity implements OnClickListe
             } else {
                 tvContent.setText("下载出错，请重试");
             }
-            ((TextView) findViewById(R.id.bt_sure)).setText(R.string.download_retry);
+            ((TextView) findViewById(R.id.bt_sure)).setText(R.string.uu_download_retry);
             onceClick = true;
             onceInstall = true;
         }
     }
 
     public void setDownloadSuccess(String path) {
-        ((TextView) findViewById(R.id.bt_sure)).setText(R.string.installing);
+        ((TextView) findViewById(R.id.bt_sure)).setText(R.string.uu_downloading);
         startInstall(path);
     }
 

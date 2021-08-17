@@ -61,11 +61,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void onStart(View view) {
         Logl.e("onStart");
+        // 普通更新
 //        testUpdate();
+        // 传入文件安装
 //        testInstall();
+        // 下载测试，带UI
 //        testDownload();
+        // 带速度的下载测试
 //        speedTest();
+        // 权限申请框架
 //        testPermission();
+        // 多任务下载
         testMultiDownload();
     }
 
@@ -129,7 +135,8 @@ public class MainActivity extends AppCompatActivity {
         Upgrader.with().start(new ApkUpdateBean.Builder()
                 .newApkUrl(url)
                 .newApkVersionCode(2)
-                .addApkPatchBean(new ApkPatchBean(1, fab111.getText().toString()))
+                // 测试 增量更新时使用
+//                .addApkPatchBean(new ApkPatchBean(1, fab111.getText().toString()))
                 .build());
     }
 

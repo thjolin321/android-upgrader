@@ -27,7 +27,7 @@ public class PDialog extends Dialog implements View.OnClickListener {
     private boolean needCompose;
 
     public PDialog(@NonNull Context context) {
-        super(context, R.style.TangCustomDialog);
+        super(context, R.style.UuCustomDialog);
         Logl.e("PDialog");
         setCustomDialog();
     }
@@ -99,12 +99,12 @@ public class PDialog extends Dialog implements View.OnClickListener {
 
     public void setForceUpdate() {
         findViewById(R.id.bt_close).setVisibility(View.GONE);
-        ((TextView) mView.findViewById(R.id.bt_cancel)).setText(R.string.app_exit);
+        ((TextView) mView.findViewById(R.id.bt_cancel)).setText(R.string.uu_app_exit);
     }
 
     public void setNoNeedProgress() {
         mView.findViewById(R.id.ll_progress).setVisibility(View.GONE);
-        ((TextView) mView.findViewById(R.id.bt_sure)).setText(R.string.app_download);
+        ((TextView) mView.findViewById(R.id.bt_sure)).setText(R.string.uu_app_download);
     }
 
     public void setNeedCompose() {

@@ -132,6 +132,8 @@ public class UpgraderController {
         dealLifeCycle(DOWNLOAD);
         DownloadTask.Builder taskBuilder = flow.getDownloadTask();
         taskBuilder.needProgress(configer.showDownladProgress);
+        taskBuilder.needMoveToMainThread(true);
+        taskBuilder.blockSize(1);
         UuDownloader.with().start(taskBuilder.build(), new DownloadListener() {
             @Override
             public void success(String path) {

@@ -110,7 +110,7 @@ List<String> list = new ArrayList<>();
 ### 第二步：下载对应差分包，合成new.apk，进行安装，框架已实现
 差分包下载地址：[差分包工具](https://obs-mips3-test.obs.cn-north-1.myhuaweicloud.com/bk_run_log/20200306/xa/bsdiff.zip) ，请查看README.txt，获取使用方法。具体差分算法原理，请自行搜索。
 ## 联系我
-QQ群：1132413834 (问题交流)
+QQ群：1132413834 （问题交流）
 
 
 

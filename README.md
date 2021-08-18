@@ -60,6 +60,7 @@ Upgrader.with().setConfiger(new UpgraderConfiger.Builder()
                         // 可选，可增多个，增量更新时使用
                         .addApkPatchBean(new ApkPatchBean(1, "增量文件链接"))
                         .build());
+                        
 *********下载框架Api详解*********
 // 单任务详细配置
 UuDownloader.with().start(new DownloadTask.Builder()
@@ -108,7 +109,8 @@ List<String> list = new ArrayList<>();
 有old1.apk、old2.apk版本号versionCode分别为1和2，现在有new3.apk版本号为3，我们需要对old1和old2分别进行生成差分包patch.apk（命名随意）。然后将差分包分别上传至服务器，通过请求链接返回给客户端。
 ### 第二步：下载对应差分包，合成new.apk，进行安装，框架已实现
 差分包下载地址：[差分包工具](https://obs-mips3-test.obs.cn-north-1.myhuaweicloud.com/bk_run_log/20200306/xa/bsdiff.zip) ，请查看README.txt，获取使用方法。具体差分算法原理，请自行搜索。
-
+## 联系我
+QQ群：1132413834 (问题交流)
 
 
 

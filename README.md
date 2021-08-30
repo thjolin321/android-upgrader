@@ -72,7 +72,7 @@ UuDownloader.with().start(new DownloadTask.Builder()
                 .fileName()
                 // 下载文件的md5值
                 .newFileMd5()
-                // 下载线程数据，最大值为5，为不指定将依据文件策略自动匹配数量
+                // 下载线程数据，最大值为5，如不指定将依据文件策略自动匹配数量
                 .blockSize()
                 // 是否强制下载
                 .forceRepeat()

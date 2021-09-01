@@ -1,6 +1,6 @@
 # android-upgrader
 一个App的更新框架，包含增量更新、完整链接更新、跳转应用市场更新。你可以一句代码，传入更新的参数，交由框架自动帮你处理所有操作，也可以实现框架提供的接口，自由定制你需要的UI和业务逻辑。
-如果你仅仅需要一个下载器，可以单独集成下载框架，为你提供一个功能全备的Android多线程下载器，包含断点下载、多任务同时下载、进度速度回调等。
+如果你仅仅需要一个下载器，可以单独集成下载框架，为你提供一个功能全备的Android多线程下载器，包含断点下载、多任务同时下载、进度速度回调等。该项目已在新潮传媒集团相关产品中商用并持续迭代。
 ## 简单效果图，建议下载demo体验。
 ![](https://obs-mips3-test.obs.cn-north-1.myhuaweicloud.com/bk_run_log/20200306/xa/upgrader_github_jietu.png)
 ## 使用
@@ -86,13 +86,8 @@ UuDownloader.with().start(new DownloadTask.Builder()
                 .needMoveToMainThread()
                 .build(), new DownloadListener());
                 
-// 多任务配置，最大同时下载数量为3
-List<String> list = new ArrayList<>();
-        list.add(url);
-        list.add(url1);
-        list.add(url2);
-        list.add(url3);
-        UuDownloader.with().start(list, new MultiDownloadListener() {
+// 多任务配置，传入list自动下载
+UuDownloader.with().start(list, new MultiDownloadListener() {
             @Override
             public void onFinish() {
             }

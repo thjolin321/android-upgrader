@@ -7,9 +7,9 @@
 ## 使用
 ```
 // gradle集成，此依赖已包含下载框架
-implementation 'com.github.thjolin321.android-upgrader:library:v1.0.1'
+implementation 'com.github.thjolin321.android-upgrader:library:v1.0.2'
 // 单独下载框架，如果你仅仅想使用下载功能的话，请使用此依赖
-implementation 'com.github.thjolin321.android-upgrader:uudownload:v1.0.1'
+implementation 'com.github.thjolin321.android-upgrader:uudownload:v1.0.2'
 ```
 ## 使用示例
 ``` 
